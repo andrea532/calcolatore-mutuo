@@ -203,6 +203,151 @@ body {
     margin: 0 -1rem;
     padding: 1rem;
 }
+/* Modifica gli stili base */
+#calcolatore-wrapper {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 15px;
+}
+
+.sidebar {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    height: auto; /* Rimuovi l'altezza fissa */
+    position: relative; /* Cambia da fixed a relative */
+    width: 100%;
+    max-width: 350px;
+    margin: 0 auto 1rem;
+}
+
+/* Stili mobile ottimizzati */
+@media (max-width: 767px) {
+    #calcolatore-wrapper {
+        padding: 10px;
+    }
+
+    .sidebar {
+        max-width: 100%;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        overflow: visible; /* Rimuove la scrollbar */
+    }
+
+    .main-content {
+        padding: 0;
+        margin: 0;
+        width: 100%;
+    }
+
+    .grafico-container {
+        height: 300px;
+        padding: 0.8rem;
+        margin: 0 0 1rem 0;
+    }
+
+    .table-responsive {
+        padding: 0.8rem;
+        margin: 0;
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    #sommario .card {
+        margin-bottom: 1rem;
+        padding: 0.8rem;
+    }
+
+    .table th, 
+    .table td {
+        padding: 0.5rem;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    /* Migliora la visualizzazione dei form su mobile */
+    .form-control, 
+    .form-select, 
+    .btn {
+        height: 44px;
+        font-size: 16px;
+    }
+
+    /* Migliora la visualizzazione delle card del sommario */
+    #sommario .row {
+        margin: 0 -5px;
+    }
+
+    #sommario .col-md-6 {
+        padding: 0 5px;
+    }
+
+    #sommario .card {
+        height: auto;
+    }
+
+    /* Ottimizza gli spazi tra gli elementi */
+    .mb-3 {
+        margin-bottom: 0.8rem !important;
+    }
+
+    .mb-4 {
+        margin-bottom: 1rem !important;
+    }
+}
+
+/* Stili tablet */
+@media (min-width: 768px) and (max-width: 991px) {
+    .sidebar {
+        max-width: 100%;
+        margin-bottom: 1.5rem;
+    }
+
+    .main-content {
+        width: 100%;
+        margin-left: 0;
+        padding: 0;
+    }
+}
+
+/* Stili desktop */
+@media (min-width: 992px) {
+    .sidebar {
+        position: sticky;
+        top: 20px;
+        height: auto;
+        max-height: calc(100vh - 40px);
+        overflow-y: auto;
+    }
+
+    .main-content {
+        padding-left: 2rem;
+    }
+}
+
+/* Ottimizzazioni per iPhone */
+@supports (-webkit-touch-callout: none) {
+    /* Stili specifici per iOS */
+    .form-control, 
+    .form-select {
+        font-size: 16px; /* Previene lo zoom automatico */
+    }
+
+    .table-responsive {
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Fix per il viewport su iOS */
+    @media (max-width: 767px) {
+        .grafico-container {
+            width: 100vw;
+            margin-left: -10px;
+            margin-right: -10px;
+            padding: 10px;
+        }
+    }
+}
 
 @media (max-width: 768px) {
     .container {
