@@ -328,12 +328,22 @@ class CalcolatoreMutuo {
     }
 
     inizializzaGestioneMobile() {
-        // Gestione dello scroll su iOS
+        // Rimuovi il comportamento problematico dello scroll automatico
         document.querySelectorAll('input[type="number"]').forEach(input => {
-            input.addEventListener('focus', () => {
+            input.addEventListener('focus', (e) => {
+                e.preventDefault();
+                // Previeni lo scroll automatico
                 setTimeout(() => {
-                    input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }, 300);
+                    window.scrollTo(0, window.scrollY);
+                }, 50);
+            });
+
+            input.addEventListener('blur', (e) => {
+                e.preventDefault();
+                // Previeni il bounce dello scroll
+                setTimeout(() => {
+                    window.scrollTo(0, window.scrollY);
+                }, 50);
             });
         });
 
@@ -343,11 +353,12 @@ class CalcolatoreMutuo {
             Chart.defaults.plugins.legend.position = 'bottom';
         }
 
-        // Gestione orientamento schermo
+        // Gestione orientamento schermo ottimizzata
         window.addEventListener('orientationchange', () => {
             if (this.chart) {
                 setTimeout(() => {
                     this.chart.resize();
+                    window.scrollTo(0, window.scrollY);
                 }, 100);
             }
         });
