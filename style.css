@@ -82,16 +82,14 @@ body {
 }
 
 @media (max-width: 768px) {
-    .container {
-        width: 100%;
-        padding: 1rem;
-    }
-    .sidebar, .main-content {
+    .sidebar {
+        position: relative;
+        height: auto;
         width: 100%;
         margin: 0;
+        padding: 1.5rem;
+        border-radius: 0;
     }
-}
-
 
     .main-content {
         padding: 1.5rem;
@@ -206,23 +204,17 @@ body {
     padding: 1rem;
 }
 
-@media (min-width: 992px) {
-    .container-fluid {
-        padding: 0;
+@media (max-width: 768px) {
+    .container {
+        width: 100%;
+        padding: 1rem;
     }
-    
-    .row {
+    .sidebar, .main-content {
+        width: 100%;
         margin: 0;
     }
-    
-    .sidebar {
-        margin: 1rem 0 1rem 1rem;
-    }
-    
-    .main-content {
-        padding: 1rem 1rem 1rem 2rem;
-    }
 }
+
 
 .analisi-dettagliata {
     background-color: white;
