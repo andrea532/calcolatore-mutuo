@@ -469,4 +469,45 @@ html, body {
     #sommario .card {
         margin: 5px 0;
     }
+}
+
+/* Aggiungi questi stili per ottimizzare il rendering */
+.risultati {
+    will-change: transform;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+}
+
+.grafico-container {
+    will-change: transform;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+}
+
+/* Ottimizza lo scrolling su mobile */
+@media (max-width: 767px) {
+    body {
+        overscroll-behavior-y: none;
+    }
+    
+    .risultati {
+        overflow: hidden;
+        position: relative;
+    }
+
+    .table-responsive {
+        -webkit-overflow-scrolling: auto;
+        overflow-y: hidden;
+    }
+
+    #dettaglio-tabella tr {
+        contain: content;
+    }
+    
+    .grafico-container {
+        contain: content;
+        height: 300px !important;
+    }
 } 

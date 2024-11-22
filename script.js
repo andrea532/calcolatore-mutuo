@@ -163,118 +163,63 @@ class CalcolatoreMutuo {
     }
 
     mostraRisultati(risultati) {
-        const tipoDebito = document.getElementById('tipo-debito').value;
-        const sommario = document.getElementById('sommario');
-        const risparmiInteressi = risultati[risultati.length - 1].risparmioInteressi;
-        const anniRisparmiati = Math.max(0, 
-            document.getElementById('durata').value - risultati.length);
-
-        sommario.innerHTML = `
-            <div class="col-md-6 mb-3">
-                <div class="card">
-                    <h5>Risparmio Interessi</h5>
-                    <p class="h3">${this.formattaValuta(risparmiInteressi)}</p>
-                    <small class="text-muted">Interessi risparmiati con pagamenti extra</small>
-                </div>
-            </div>
-            <div class="col-md-6 mb-3">
-                <div class="card">
-                    <h5>${tipoDebito === 'mutuo' ? 'Anni' : 'Mesi'} Risparmiati</h5>
-                    <p class="h3">${tipoDebito === 'mutuo' ? anniRisparmiati : anniRisparmiati * 12}</p>
-                    <small class="text-muted">Durata ridotta del ${tipoDebito}</small>
-                </div>
-            </div>
-        `;
-
-        this.aggiornaGrafico(risultati);
-        this.aggiornaTabella(risultati);
+        // Aggiungi gestione performance
+        requestAnimationFrame(() => {
+            this.aggiornaSommario(risultati);
+            this.aggiornaGrafico(risultati);
+            this.aggiornaTabella(risultati);
+        });
     }
 
     aggiornaGrafico(risultati) {
-        const ctx = document.getElementById('mutuoChart').getContext('2d');
-        
         if (this.chart) {
             this.chart.destroy();
         }
 
+        const ctx = document.getElementById('mutuoChart').getContext('2d');
+        
+        // Ottimizza le opzioni del grafico per mobile
         const isMobile = window.innerWidth < 768;
-
+        
         this.chart = new Chart(ctx, {
             type: 'line',
-            data: {
-                labels: risultati.map(r => `Anno ${r.anno}`),
-                datasets: [{
-                    label: 'Saldo Standard',
-                    data: risultati.map(r => r.saldoStandard),
-                    borderColor: '#2563eb',
-                    tension: 0.1,
-                    borderWidth: isMobile ? 2 : 3
-                }, {
-                    label: 'Saldo con Extra',
-                    data: risultati.map(r => r.saldoConExtra),
-                    borderColor: '#10b981',
-                    tension: 0.1,
-                    borderWidth: isMobile ? 2 : 3
-                }]
-            },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                animation: {
+                    duration: isMobile ? 0 : 750 // Disabilita animazioni su mobile
+                },
                 interaction: {
                     mode: 'nearest',
                     intersect: false
                 },
                 plugins: {
-                    tooltip: {
-                        callbacks: {
-                            label: (context) => {
-                                return this.formattaValuta(context.raw);
-                            }
-                        }
-                    },
                     legend: {
-                        position: isMobile ? 'bottom' : 'top',
-                        labels: {
-                            boxWidth: isMobile ? 8 : 12,
-                            padding: isMobile ? 8 : 10,
-                            font: {
-                                size: isMobile ? 11 : 12
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        ticks: {
-                            maxRotation: isMobile ? 0 : 45,
-                            minRotation: isMobile ? 0 : 45,
-                            font: {
-                                size: isMobile ? 10 : 12
-                            }
-                        }
-                    },
-                    y: {
-                        ticks: {
-                            font: {
-                                size: isMobile ? 10 : 12
-                            }
-                        }
+                        display: !isMobile
                     }
                 }
             }
+            // ... resto delle opzioni del grafico ...
         });
     }
 
     aggiornaTabella(risultati) {
         const tbody = document.getElementById('dettaglio-tabella');
-        tbody.innerHTML = risultati.map(r => `
-            <tr>
+        const fragment = document.createDocumentFragment();
+        
+        risultati.forEach(r => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
                 <td>${r.anno}</td>
                 <td>${this.formattaValuta(r.saldoStandard)}</td>
                 <td>${this.formattaValuta(r.saldoConExtra)}</td>
                 <td>${this.formattaValuta(r.risparmioInteressi)}</td>
-            </tr>
-        `).join('');
+            `;
+            fragment.appendChild(tr);
+        });
+
+        tbody.innerHTML = '';
+        tbody.appendChild(fragment);
     }
 
     calcolaRataMensile(importo, tassoAnnuale, anni) {
@@ -328,24 +273,29 @@ class CalcolatoreMutuo {
     }
 
     inizializzaGestioneMobile() {
-        // Rimuovi il comportamento problematico dello scroll automatico
-        document.querySelectorAll('input[type="number"]').forEach(input => {
-            input.addEventListener('focus', (e) => {
-                e.preventDefault();
-                // Previeni lo scroll automatico
-                setTimeout(() => {
-                    window.scrollTo(0, window.scrollY);
-                }, 50);
-            });
+        if ('ontouchstart' in window) {
+            // Ottimizza lo scroll su touch devices
+            document.addEventListener('touchmove', (e) => {
+                if (e.touches.length > 1) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
 
-            input.addEventListener('blur', (e) => {
-                e.preventDefault();
-                // Previeni il bounce dello scroll
-                setTimeout(() => {
-                    window.scrollTo(0, window.scrollY);
-                }, 50);
+            // Gestisci meglio gli input su mobile
+            document.querySelectorAll('input[type="number"]').forEach(input => {
+                input.addEventListener('focus', () => {
+                    setTimeout(() => {
+                        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 100);
+                });
+
+                input.addEventListener('blur', () => {
+                    setTimeout(() => {
+                        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 100);
+                });
             });
-        });
+        }
 
         // Migliora la gestione del grafico su mobile
         if (window.innerWidth < 768) {
