@@ -469,5 +469,3 @@ class CalcolatoreMutuo {
 document.addEventListener('DOMContentLoaded', () => {
     new CalcolatoreMutuo();
 });  
-    new CalcolatoreMutuo();
-}); 
