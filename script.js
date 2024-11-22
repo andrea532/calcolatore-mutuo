@@ -1,5 +1,20 @@
 class CalcolatoreMutuo {
     constructor() {
+        this.verificaElementiHTML = () => {
+            const elementiRichiesti = [
+                'mutuo-form',
+                'importo',
+                'tasso',
+                'durata',
+                'extra',
+                'sommario',
+                'mutuoChart',
+                'dettaglio-tabella'
+            ];
+            
+            return elementiRichiesti.every(id => document.getElementById(id));
+        };
+
         if (!this.verificaElementiHTML()) {
             console.error('Elementi HTML mancanti.');
             return;
@@ -10,15 +25,8 @@ class CalcolatoreMutuo {
         this.ultimiRisultati = null;
         
         this.inizializzaEventi();
-        this.inizializzaSliders();
         this.inizializzaGestioneMobile();
         this.inizializzaSelettoreTipoDebito();
-
-        document.querySelectorAll('input[type="number"]').forEach(input => {
-            input.addEventListener('blur', () => {
-                window.scrollTo(0, 0);
-            });
-        });
     }
 
     inizializzaEventi() {
@@ -122,111 +130,131 @@ class CalcolatoreMutuo {
         let saldoConExtra = importo;
         let interessiTotaliStandard = 0;
         let interessiTotaliExtra = 0;
-        let risultatiAnnuali = [];
-
-        for (let anno = 1; anno <= anni; anno++) {
-            let interessiAnnualiStandard = 0;
-            let interessiAnnualiExtra = 0;
-
-            for (let mese = 1; mese <= 12; mese++) {
-                // Calcolo interessi per piano standard
-                const interesseMensileStandard = saldoStandard * tassoMensile;
-                interessiAnnualiStandard += interesseMensileStandard;
-                const capitaleMensileStandard = rataMensile - interesseMensileStandard;
-                saldoStandard -= capitaleMensileStandard;
-
-                // Calcolo interessi per piano con extra
-                const interesseMensileExtra = saldoConExtra * tassoMensile;
-                interessiAnnualiExtra += interesseMensileExtra;
-                const capitaleMensileExtra = rataMensile - interesseMensileExtra;
-                saldoConExtra -= capitaleMensileExtra;
+        
+        const risultati = [];
+        
+        for (let anno = 1; anno <= anni && (saldoStandard > 0 || saldoConExtra > 0); anno++) {
+            // Calcolo standard
+            for (let mese = 1; mese <= 12 && saldoStandard > 0; mese++) {
+                const interessiMese = saldoStandard * tassoMensile;
+                interessiTotaliStandard += interessiMese;
+                const capitaleMese = Math.min(rataMensile - interessiMese, saldoStandard);
+                saldoStandard = Math.max(0, saldoStandard - capitaleMese);
+            }
+            
+            // Calcolo con extra
+            for (let mese = 1; mese <= 12 && saldoConExtra > 0; mese++) {
+                const interessiMese = saldoConExtra * tassoMensile;
+                interessiTotaliExtra += interessiMese;
+                const capitaleMese = Math.min(rataMensile - interessiMese, saldoConExtra);
+                saldoConExtra = Math.max(0, saldoConExtra - capitaleMese);
                 
-                if (mese === 12 && extraAnnuale > 0) {
+                // Applica il pagamento extra alla fine dell'anno
+                if (mese === 12 && saldoConExtra > 0) {
                     saldoConExtra = Math.max(0, saldoConExtra - extraAnnuale);
                 }
             }
-
-            interessiTotaliStandard += interessiAnnualiStandard;
-            interessiTotaliExtra += interessiAnnualiExtra;
-
-            risultatiAnnuali.push({
+            
+            risultati.push({
                 anno,
-                saldoStandard: Math.max(0, saldoStandard),
-                saldoConExtra: Math.max(0, saldoConExtra),
-                risparmioInteressi: interessiTotaliStandard - interessiTotaliExtra
+                rataMensile,
+                saldoStandard: Math.round(saldoStandard * 100) / 100,
+                saldoConExtra: Math.round(saldoConExtra * 100) / 100,
+                interessiTotaliStandard: Math.round(interessiTotaliStandard * 100) / 100,
+                interessiTotaliExtra: Math.round(interessiTotaliExtra * 100) / 100,
+                risparmioInteressi: Math.round((interessiTotaliStandard - interessiTotaliExtra) * 100) / 100
             });
-
-            if (saldoConExtra <= 0) break;
         }
-
-        return risultatiAnnuali;
+        
+        return risultati;
     }
 
     mostraRisultati(risultati) {
-        // Aggiungi gestione performance
-        requestAnimationFrame(() => {
-            this.aggiornaSommario(risultati);
-            this.aggiornaGrafico(risultati);
-            this.aggiornaTabella(risultati);
-        });
+        // Trova l'ultimo anno con saldo extra > 0
+        const durataEffettiva = risultati.findIndex(r => r.saldoConExtra <= 0) + 1;
+        const durataStandard = risultati.length;
+        const anniRisparmiati = durataStandard - durataEffettiva;
+        
+        const sommario = document.getElementById('sommario');
+        sommario.innerHTML = `
+            <div class="col-md-3 col-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Rata Mensile</h5>
+                        <p class="card-text">${this.formattaValuta(risultati[0].rataMensile)}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Interessi Totali</h5>
+                        <p class="card-text">${this.formattaValuta(risultati[risultati.length - 1].interessiTotaliStandard)}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Risparmio Totale</h5>
+                        <p class="card-text">${this.formattaValuta(risultati[risultati.length - 1].risparmioInteressi)}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Durata Effettiva</h5>
+                        <p class="card-text">${durataEffettiva} anni (-${anniRisparmiati} anni)</p>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        this.aggiornaGrafico(risultati);
+        this.aggiornaTabella(risultati);
     }
 
     aggiornaGrafico(risultati) {
+        const ctx = document.getElementById('mutuoChart').getContext('2d');
+        
         if (this.chart) {
             this.chart.destroy();
         }
 
-        const ctx = document.getElementById('mutuoChart').getContext('2d');
-        
-        // Ottimizza le opzioni del grafico per mobile
-        const isMobile = window.innerWidth < 768;
-        
         this.chart = new Chart(ctx, {
             type: 'line',
+            data: {
+                labels: risultati.map(r => `Anno ${r.anno}`),
+                datasets: [{
+                    label: 'Piano Standard',
+                    data: risultati.map(r => r.saldoStandard),
+                    borderColor: '#2563eb',
+                    tension: 0.1
+                }, {
+                    label: 'Piano con Extra',
+                    data: risultati.map(r => r.saldoConExtra),
+                    borderColor: '#10b981',
+                    tension: 0.1
+                }]
+            },
             options: {
                 responsive: true,
-                maintainAspectRatio: false,
-                animation: {
-                    duration: isMobile ? 0 : 750 // Disabilita animazioni su mobile
-                },
-                interaction: {
-                    mode: 'nearest',
-                    intersect: false
-                },
-                plugins: {
-                    legend: {
-                        display: !isMobile
-                    }
-                }
+                maintainAspectRatio: false
             }
-            // ... resto delle opzioni del grafico ...
         });
-    }
-
-    aggiornaTabella(risultati) {
-        const tbody = document.getElementById('dettaglio-tabella');
-        const fragment = document.createDocumentFragment();
-        
-        risultati.forEach(r => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${r.anno}</td>
-                <td>${this.formattaValuta(r.saldoStandard)}</td>
-                <td>${this.formattaValuta(r.saldoConExtra)}</td>
-                <td>${this.formattaValuta(r.risparmioInteressi)}</td>
-            `;
-            fragment.appendChild(tr);
-        });
-
-        tbody.innerHTML = '';
-        tbody.appendChild(fragment);
     }
 
     calcolaRataMensile(importo, tassoAnnuale, anni) {
         const tassoMensile = tassoAnnuale / 12 / 100;
-        const numRate = anni * 12;
-        return (importo * tassoMensile * Math.pow(1 + tassoMensile, numRate)) / 
-               (Math.pow(1 + tassoMensile, numRate) - 1);
+        const numeroRate = anni * 12;
+        
+        if (tassoMensile === 0) {
+            return importo / numeroRate;
+        }
+        
+        return (importo * tassoMensile * Math.pow(1 + tassoMensile, numeroRate)) / 
+               (Math.pow(1 + tassoMensile, numeroRate) - 1);
     }
 
     calcolaTotaleInteressi(risultati) {
@@ -410,7 +438,7 @@ class CalcolatoreMutuo {
             },
             extra: { 
                 min: 0, 
-                max: config.importoMax * 0.2, 
+                max: 30000,
                 step: 100, 
                 default: 0 
             }
@@ -424,8 +452,22 @@ class CalcolatoreMutuo {
             this.creaSlider(id, sliderConfig);
         }
     }
+
+    aggiornaTabella(risultati) {
+        const tbody = document.getElementById('dettaglio-tabella');
+        tbody.innerHTML = risultati.map(r => `
+            <tr>
+                <td>${r.anno}</td>
+                <td>${this.formattaValuta(r.saldoStandard)}</td>
+                <td>${this.formattaValuta(r.saldoConExtra)}</td>
+                <td>${this.formattaValuta(r.risparmioInteressi)}</td>
+            </tr>
+        `).join('');
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    new CalcolatoreMutuo();
+});  
     new CalcolatoreMutuo();
 }); 
