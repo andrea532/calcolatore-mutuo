@@ -82,14 +82,16 @@ body {
 }
 
 @media (max-width: 768px) {
-    .sidebar {
-        position: relative;
-        height: auto;
+    .container {
+        width: 100%;
+        padding: 1rem;
+    }
+    .sidebar, .main-content {
         width: 100%;
         margin: 0;
-        padding: 1.5rem;
-        border-radius: 0;
     }
+}
+
 
     .main-content {
         padding: 1.5rem;
