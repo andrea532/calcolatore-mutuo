@@ -1,0 +1,312 @@
+body {
+    background-color: #f8fafc;
+    font-family: 'Inter', sans-serif;
+}
+
+.sidebar {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin: 1rem;
+    height: calc(100vh - 2rem);
+    position: fixed;
+    left: 0;
+    overflow-y: auto;
+    width: 300px;
+    z-index: 1000;
+}
+
+.main-content {
+    margin-left: 320px;
+    padding: 1rem;
+    width: calc(100% - 320px);
+}
+
+.form-control {
+    padding: 0.75rem;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(145deg, #2563eb, #1d4ed8);
+    border: none;
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3);
+}
+
+.risultati .card {
+    background-color: white;
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+    margin-bottom: 1rem;
+    transition: transform 0.2s ease;
+}
+
+.risultati .card:hover {
+    transform: translateY(-2px);
+}
+
+.grafico {
+    background-color: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.table-container {
+    background-color: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        position: relative;
+        height: auto;
+        width: 100%;
+        margin: 0;
+        padding: 1.5rem;
+        border-radius: 0;
+    }
+
+    .main-content {
+        padding: 1.5rem;
+    }
+
+    .form-control {
+        height: 48px;
+    }
+
+    .btn {
+        height: 48px;
+        font-size: 16px;
+    }
+
+    .grafico-container {
+        margin: 1rem -0.5rem;
+        border-radius: 8px;
+    }
+
+    .table-responsive {
+        margin: 1rem -0.5rem;
+        border-radius: 8px;
+    }
+
+    .risultati .card {
+        margin-bottom: 0.5rem;
+    }
+
+    #sommario .card {
+        padding: 0.8rem;
+    }
+
+    .form-control {
+        font-size: 16px;
+    }
+
+    .btn {
+        padding: 12px;
+        font-size: 16px;
+    }
+}
+
+.slider-container {
+    margin-top: 1rem;
+}
+
+.form-range {
+    width: 100%;
+    height: 1.5rem;
+    padding: 0;
+    background-color: transparent;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.form-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 1rem;
+    height: 1rem;
+    background: #2563eb;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.value-display {
+    display: inline-block;
+    margin-left: 0.5rem;
+    font-weight: 500;
+    color: #2563eb;
+}
+
+.analisi-dettagliata .card {
+    height: 100%;
+}
+
+.alert {
+    font-size: 0.9rem;
+}
+
+.alert ul {
+    padding-left: 1.2rem;
+}
+
+.alert-warning {
+    background-color: #fff7ed;
+    border-color: #ffedd5;
+    color: #c2410c;
+}
+
+.alert-info {
+    background-color: #f0f9ff;
+    border-color: #e0f2fe;
+    color: #0369a1;
+}
+
+.grafico-container {
+    background-color: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+    height: 400px;
+}
+
+.table-responsive {
+    background-color: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    margin: 0 -1rem;
+    padding: 1rem;
+}
+
+@media (min-width: 992px) {
+    .container-fluid {
+        padding: 0;
+    }
+    
+    .row {
+        margin: 0;
+    }
+    
+    .sidebar {
+        margin: 1rem 0 1rem 1rem;
+    }
+    
+    .main-content {
+        padding: 1rem 1rem 1rem 2rem;
+    }
+}
+
+.analisi-dettagliata {
+    background-color: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+}
+
+.risultati {
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+@media (max-width: 992px) {
+    .sidebar {
+        position: relative;
+        height: auto;
+        max-width: 100%;
+        margin-bottom: 2rem;
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+}
+
+@media (min-width: 993px) {
+    .main-content {
+        margin-left: calc(25% + 1rem);
+    }
+}
+
+@media (max-width: 576px) {
+    .table th, 
+    .table td {
+        padding: 0.5rem;
+        font-size: 13px;
+    }
+
+    .table-responsive {
+        margin: 0 -1rem;
+        padding: 1rem;
+    }
+}
+
+.spinner-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.form-select {
+    padding: 0.75rem;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+    font-size: 16px;
+    background-color: white;
+}
+
+.form-select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Stili per i diversi tipi di debito */
+.tipo-mutuo .sidebar {
+    border-top: 4px solid #2563eb;
+}
+
+.tipo-prestito .sidebar {
+    border-top: 4px solid #10b981;
+}
+
+.tipo-auto .sidebar {
+    border-top: 4px solid #f59e0b;
+}
+
+.tipo-altro .sidebar {
+    border-top: 4px solid #8b5cf6;
+} 
