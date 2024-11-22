@@ -510,10 +510,4 @@ html, body {
         contain: content;
         height: 300px !important;
     }
-}   }
-    
-    .grafico-container {
-        contain: content;
-        height: 300px !important;
-    }
 } 
