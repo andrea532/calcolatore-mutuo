@@ -84,6 +84,7 @@ class CalcolatoreMutuo {
         const slider = document.createElement('input');
         slider.type = 'range';
         slider.className = 'form-range';
+        slider.id = `${id}-slider`;
         slider.min = config.min;
         slider.max = config.max;
         slider.step = config.step;
@@ -93,37 +94,35 @@ class CalcolatoreMutuo {
         input.value = config.default;
         valueDisplay.textContent = this.formattaValore(id, config.default);
         
-        // Gestione eventi touch ottimizzata
-        let isDragging = false;
-        
-        slider.addEventListener('touchstart', (e) => {
-            isDragging = true;
-            // Non prevenire il comportamento di default qui
-        }, { passive: true });
-
-        slider.addEventListener('touchmove', (e) => {
-            if (isDragging) {
-                const touch = e.touches[0];
-                const rect = slider.getBoundingClientRect();
-                const offsetX = touch.clientX - rect.left;
-                const percentage = Math.max(0, Math.min(1, offsetX / rect.width));
-                const value = config.min + (config.max - config.min) * percentage;
-                
-                slider.value = Math.round(value / config.step) * config.step;
-                updateValue(slider.value);
-            }
-        }, { passive: true });
-
-        slider.addEventListener('touchend', () => {
-            isDragging = false;
-        }, { passive: true });
-        
-        // Gestione degli eventi
+        // Gestione eventi semplificata
         const updateValue = (value) => {
-            input.value = value;
-            valueDisplay.textContent = this.formattaValore(id, value);
+            const validValue = Math.min(Math.max(value, config.min), config.max);
+            slider.value = validValue;
+            input.value = validValue;
+            valueDisplay.textContent = this.formattaValore(id, validValue);
             this.calcolaRisultatiLive();
         };
+
+        // Eventi per input numerico
+        input.addEventListener('input', (e) => {
+            updateValue(e.target.value);
+        });
+
+        // Eventi per slider
+        slider.addEventListener('input', (e) => {
+            updateValue(e.target.value);
+        });
+
+        // Gestione touch specifica per mobile
+        if ('ontouchstart' in window) {
+            slider.addEventListener('touchstart', (e) => {
+                e.stopPropagation();
+            }, { passive: true });
+
+            slider.addEventListener('touchmove', (e) => {
+                e.stopPropagation();
+            }, { passive: true });
+        }
         
         labelContainer.appendChild(label);
         labelContainer.appendChild(valueDisplay);
@@ -311,7 +310,7 @@ class CalcolatoreMutuo {
             importo: { min: 50000, max: 1000000, step: 1000, default: 200000 },
             tasso: { min: 0.1, max: 10, step: 0.1, default: 3.5 },
             durata: { min: 5, max: 30, step: 1, default: 20 },
-            extra: { min: 0, max: 20000, step: 100, default: 0 }
+            extra: { min: 0, max: 10000, step: 100, default: 0 }
         };
 
         for (const [id, config] of Object.entries(configurazioni)) {
@@ -461,7 +460,7 @@ class CalcolatoreMutuo {
             },
             extra: { 
                 min: 0, 
-                max: 30000,
+                max: 10000,
                 step: 100, 
                 default: 0 
             }
