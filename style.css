@@ -860,18 +860,12 @@ html, body {
     .main-content,
     .risultati,
     .grafico-container {
+        touch-action: auto; /* Ripristina il comportamento touch predefinito */
         overflow-y: visible;
-        width: 100%;
-        max-width: 100%;
-        margin-left: 0;
-        margin-right: 0;
-        padding-left: 10px;
-        padding-right: 10px;
     }
 
     .table-responsive {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
+        touch-action: pan-x pan-y; /* Permetti lo scroll in tutte le direzioni per la tabella */
     }
 
     .sidebar {
