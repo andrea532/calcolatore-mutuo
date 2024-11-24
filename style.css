@@ -8,25 +8,19 @@ html, body {
     background-color: #f8fafc;
     font-family: 'Inter', sans-serif;
     -webkit-overflow-scrolling: touch;
-    touch-action: pan-y pinch-zoom;
+    touch-action: manipulation;
     -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
     user-select: none;
-    scroll-behavior: smooth;
 }
 
 #calcolatore-wrapper {
     width: 100%;
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 15px;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
     box-sizing: border-box;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    will-change: transform;
-    transform: translateZ(0);
-    backface-visibility: hidden;
 }
 
 .table-responsive, 
