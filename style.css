@@ -67,6 +67,11 @@ html, body {
         margin: 0;
         padding: 10px;
         scroll-snap-type: x mandatory;
+        position: relative;
+        z-index: 1;
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
     .sidebar {
@@ -77,6 +82,38 @@ html, body {
         padding: 1rem;
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
+    }
+
+    .risultati {
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 60px;
+        scroll-padding-bottom: 20px;
+    }
+
+    .main-content {
+        height: auto;
+        overflow-y: visible;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: env(safe-area-inset-bottom, 20px);
+    }
+
+    #sommario .card {
+        margin-bottom: 0.5rem;
+        padding: 0.75rem;
+    }
+
+    #sommario .card-body {
+        padding: 0.75rem;
+    }
+
+    #sommario .card-title {
+        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
+    }
+
+    #sommario .card-text {
+        font-size: 1rem;
     }
 }
 
@@ -144,4 +181,21 @@ html, body {
         width: 36px;
         height: 36px;
     }
+}
+
+.grafico-container {
+    margin-bottom: 1rem;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: relative;
+    z-index: 1;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+* {
+    -webkit-overflow-scrolling: touch;
 } 
