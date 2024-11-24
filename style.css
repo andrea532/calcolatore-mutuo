@@ -8,11 +8,12 @@ html, body {
     background-color: #f8fafc;
     font-family: 'Inter', sans-serif;
     -webkit-overflow-scrolling: touch;
-    touch-action: manipulation;
+    touch-action: pan-y pinch-zoom;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    scroll-behavior: smooth;
 }
 
 #calcolatore-wrapper {
@@ -22,6 +23,19 @@ html, body {
     padding: 15px;
     box-sizing: border-box;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
+
+.table-responsive, 
+.sidebar, 
+.grafico-container {
+    -webkit-overflow-scrolling: touch;
+    will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
 }
 
 @media (max-width: 767px) {
@@ -52,6 +66,7 @@ html, body {
         -webkit-overflow-scrolling: touch;
         margin: 0;
         padding: 10px;
+        scroll-snap-type: x mandatory;
     }
 
     .sidebar {
@@ -60,6 +75,8 @@ html, body {
         width: 100%;
         margin: 0 0 1rem 0;
         padding: 1rem;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
 }
 
