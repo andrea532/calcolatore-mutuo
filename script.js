@@ -93,35 +93,37 @@ class CalcolatoreMutuo {
         input.value = config.default;
         valueDisplay.textContent = this.formattaValore(id, config.default);
         
-        // Gestione touch ottimizzata solo per gli slider
-        if ('ontouchstart' in window) {
-            slider.addEventListener('touchstart', (e) => {
-                e.stopPropagation();
-            }, { passive: true });
-
-            slider.addEventListener('touchmove', (e) => {
-                if (e.target === slider) {
-                    e.stopPropagation();
-                }
-            }, { passive: true });
-        }
+        // Gestione eventi touch ottimizzata
+        let isDragging = false;
         
+        slider.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            // Non prevenire il comportamento di default qui
+        }, { passive: true });
+
+        slider.addEventListener('touchmove', (e) => {
+            if (isDragging) {
+                const touch = e.touches[0];
+                const rect = slider.getBoundingClientRect();
+                const offsetX = touch.clientX - rect.left;
+                const percentage = Math.max(0, Math.min(1, offsetX / rect.width));
+                const value = config.min + (config.max - config.min) * percentage;
+                
+                slider.value = Math.round(value / config.step) * config.step;
+                updateValue(slider.value);
+            }
+        }, { passive: true });
+
+        slider.addEventListener('touchend', () => {
+            isDragging = false;
+        }, { passive: true });
+        
+        // Gestione degli eventi
         const updateValue = (value) => {
             input.value = value;
             valueDisplay.textContent = this.formattaValore(id, value);
             this.calcolaRisultatiLive();
         };
-        
-        slider.addEventListener('input', (e) => {
-            updateValue(e.target.value);
-        });
-        
-        input.addEventListener('change', (e) => {
-            let value = parseFloat(e.target.value);
-            value = Math.min(Math.max(value, config.min), config.max);
-            slider.value = value;
-            updateValue(value);
-        });
         
         labelContainer.appendChild(label);
         labelContainer.appendChild(valueDisplay);
@@ -341,18 +343,17 @@ class CalcolatoreMutuo {
 
     inizializzaGestioneMobile() {
         if ('ontouchstart' in window) {
-            // Gestisci solo gli slider
-            document.querySelectorAll('.form-range').forEach(slider => {
-                slider.addEventListener('touchstart', (e) => {
-                    if (e.target.type === 'range') {
-                        e.stopPropagation();
-                    }
-                }, { passive: true });
+            // Previeni il bounce dello scroll orizzontale
+            document.addEventListener('touchmove', (e) => {
+                if (Math.abs(e.touches[0].clientX) > 10) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
 
-                slider.addEventListener('touchmove', (e) => {
-                    if (e.target.type === 'range') {
-                        e.stopPropagation();
-                    }
+            // Gestisci meglio gli input su mobile
+            document.querySelectorAll('input[type="range"], input[type="number"]').forEach(input => {
+                input.addEventListener('touchstart', (e) => {
+                    e.stopPropagation();
                 }, { passive: true });
             });
 
