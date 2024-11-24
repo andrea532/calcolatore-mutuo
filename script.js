@@ -1,492 +1,823 @@
-class CalcolatoreMutuo {
-    constructor() {
-        this.verificaElementiHTML = () => {
-            const elementiRichiesti = [
-                'mutuo-form',
-                'importo',
-                'tasso',
-                'durata',
-                'extra',
-                'sommario',
-                'mutuoChart',
-                'dettaglio-tabella'
-            ];
-            
-            return elementiRichiesti.every(id => document.getElementById(id));
-        };
+body {
+    background-color: #f8fafc;
+    font-family: 'Inter', sans-serif;
+}
 
-        if (!this.verificaElementiHTML()) {
-            console.error('Elementi HTML mancanti.');
-            return;
-        }
-        
-        this.form = document.getElementById('mutuo-form');
-        this.chart = null;
-        this.ultimiRisultati = null;
-        
-        this.inizializzaEventi();
-        this.inizializzaGestioneMobile();
-        this.inizializzaSelettoreTipoDebito();
+#calcolatore-wrapper {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 15px;
+}
+
+.sidebar {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    height: auto;
+    position: relative;
+    width: 100%;
+    max-width: 350px;
+    margin: 0 auto 1rem;
+}
+
+.main-content {
+    margin-left: 320px;
+    padding: 1rem;
+    width: calc(100% - 320px);
+}
+
+.form-control {
+    padding: 0.75rem;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(145deg, #2563eb, #1d4ed8);
+    border: none;
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3);
+}
+
+.risultati .card {
+    background-color: white;
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+    margin-bottom: 1rem;
+    transition: transform 0.2s ease;
+}
+
+.risultati .card:hover {
+    transform: translateY(-2px);
+}
+
+.grafico {
+    background-color: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.table-container {
+    background-color: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 767px) {
+    #calcolatore-wrapper {
+        padding: 10px;
     }
 
-    inizializzaEventi() {
-        this.form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.calcolaRisultati();
-        });
-
-        this.form.addEventListener('reset', () => {
-            if (this.chart) {
-                this.chart.destroy();
-            }
-            document.getElementById('sommario').innerHTML = '';
-            document.getElementById('dettaglio-tabella').innerHTML = '';
-        });
+    .sidebar {
+        max-width: 100%;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        overflow: visible;
     }
 
-    calcolaRisultati() {
-        // Ottieni i valori dal form
-        const importo = parseFloat(document.getElementById('importo').value);
-        const tasso = parseFloat(document.getElementById('tasso').value);
-        const anni = parseInt(document.getElementById('durata').value);
-        const extra = parseFloat(document.getElementById('extra').value) || 0;
-
-        if (importo && tasso && anni) {
-            try {
-                const rataMensile = this.calcolaRataMensile(importo, tasso, anni);
-                const risultati = this.calcolaAmmortamento(importo, tasso, anni, extra);
-                
-                this.mostraRisultati(risultati);
-                this.ultimiRisultati = risultati;
-            } catch (error) {
-                console.error('Errore nel calcolo:', error);
-                alert('Si è verificato un errore nel calcolo. Verifica i dati inseriti.');
-            }
-        } else {
-            alert('Inserisci tutti i dati richiesti');
-        }
+    .main-content {
+        padding: 0;
+        margin: 0;
+        width: 100%;
     }
 
-    creaSlider(id, config) {
-        const container = document.createElement('div');
-        container.className = 'slider-container';
-        
-        const labelContainer = document.createElement('div');
-        labelContainer.className = 'd-flex justify-content-between align-items-center';
-        
-        const label = document.createElement('label');
-        label.textContent = this.getLabelText(id);
-        label.className = 'form-label';
-        
-        const valueDisplay = document.createElement('span');
-        valueDisplay.className = 'value-display';
-        
-        const slider = document.createElement('input');
-        slider.type = 'range';
-        slider.className = 'form-range';
-        slider.min = config.min;
-        slider.max = config.max;
-        slider.step = config.step;
-        slider.value = config.default;
-        
-        const input = document.getElementById(id);
-        input.value = config.default;
-        valueDisplay.textContent = this.formattaValore(id, config.default);
-        
-        // Gestione touch ottimizzata solo per gli slider
-        if ('ontouchstart' in window) {
-            slider.addEventListener('touchstart', (e) => {
-                e.stopPropagation();
-            }, { passive: true });
-
-            slider.addEventListener('touchmove', (e) => {
-                if (e.target === slider) {
-                    e.stopPropagation();
-                }
-            }, { passive: true });
-        }
-        
-        const updateValue = (value) => {
-            input.value = value;
-            valueDisplay.textContent = this.formattaValore(id, value);
-            this.calcolaRisultatiLive();
-        };
-        
-        slider.addEventListener('input', (e) => {
-            updateValue(e.target.value);
-        });
-        
-        input.addEventListener('change', (e) => {
-            let value = parseFloat(e.target.value);
-            value = Math.min(Math.max(value, config.min), config.max);
-            slider.value = value;
-            updateValue(value);
-        });
-        
-        labelContainer.appendChild(label);
-        labelContainer.appendChild(valueDisplay);
-        container.appendChild(labelContainer);
-        container.appendChild(slider);
-        input.parentNode.appendChild(container);
+    .grafico-container {
+        height: 300px;
+        padding: 0.8rem;
+        margin: 0 0 1rem 0;
     }
 
-    getLabelText(id) {
-        const labels = {
-            importo: 'Importo del finanziamento',
-            tasso: 'Tasso di interesse annuale',
-            durata: 'Durata del finanziamento',
-            extra: 'Pagamento extra annuale'
-        };
-        return labels[id] || id.charAt(0).toUpperCase() + id.slice(1);
+    .table-responsive {
+        padding: 0.8rem;
+        margin: 0;
+        width: 100%;
+        overflow-x: auto;
     }
 
-    formattaValore(tipo, valore) {
-        switch(tipo) {
-            case 'importo':
-            case 'reddito':
-                return this.formattaValuta(valore);
-            case 'tasso':
-                return `${valore}%`;
-            case 'durata':
-                return `${valore} anni`;
-            default:
-                return valore;
-        }
+    #sommario .card {
+        margin-bottom: 1rem;
+        padding: 0.8rem;
     }
 
-    formattaValuta(valore) {
-        return new Intl.NumberFormat('it-IT', {
-            style: 'currency',
-            currency: 'EUR'
-        }).format(valore);
+    .table th, 
+    .table td {
+        padding: 0.5rem;
+        font-size: 12px;
+        white-space: nowrap;
     }
 
-    calcolaAmmortamento(importo, tassoAnnuale, anni, extraAnnuale) {
-        const rataMensile = this.calcolaRataMensile(importo, tassoAnnuale, anni);
-        const tassoMensile = tassoAnnuale / 12 / 100;
-        
-        let saldoStandard = importo;
-        let saldoConExtra = importo;
-        let interessiTotaliStandard = 0;
-        let interessiTotaliExtra = 0;
-        
-        const risultati = [];
-        
-        for (let anno = 1; anno <= anni && (saldoStandard > 0 || saldoConExtra > 0); anno++) {
-            // Calcolo standard
-            for (let mese = 1; mese <= 12 && saldoStandard > 0; mese++) {
-                const interessiMese = saldoStandard * tassoMensile;
-                interessiTotaliStandard += interessiMese;
-                const capitaleMese = Math.min(rataMensile - interessiMese, saldoStandard);
-                saldoStandard = Math.max(0, saldoStandard - capitaleMese);
-            }
-            
-            // Calcolo con extra
-            for (let mese = 1; mese <= 12 && saldoConExtra > 0; mese++) {
-                const interessiMese = saldoConExtra * tassoMensile;
-                interessiTotaliExtra += interessiMese;
-                const capitaleMese = Math.min(rataMensile - interessiMese, saldoConExtra);
-                saldoConExtra = Math.max(0, saldoConExtra - capitaleMese);
-                
-                // Applica il pagamento extra alla fine dell'anno
-                if (mese === 12 && saldoConExtra > 0) {
-                    saldoConExtra = Math.max(0, saldoConExtra - extraAnnuale);
-                }
-            }
-            
-            risultati.push({
-                anno,
-                rataMensile,
-                saldoStandard: Math.round(saldoStandard * 100) / 100,
-                saldoConExtra: Math.round(saldoConExtra * 100) / 100,
-                interessiTotaliStandard: Math.round(interessiTotaliStandard * 100) / 100,
-                interessiTotaliExtra: Math.round(interessiTotaliExtra * 100) / 100,
-                risparmioInteressi: Math.round((interessiTotaliStandard - interessiTotaliExtra) * 100) / 100
-            });
-        }
-        
-        return risultati;
+    .form-control, 
+    .form-select, 
+    .btn {
+        height: 44px;
+        font-size: 16px;
     }
 
-    mostraRisultati(risultati) {
-        // Trova l'ultimo anno con saldo extra > 0
-        const durataEffettiva = risultati.findIndex(r => r.saldoConExtra <= 0) + 1;
-        const durataStandard = risultati.length;
-        const anniRisparmiati = durataStandard - durataEffettiva;
-        
-        const sommario = document.getElementById('sommario');
-        sommario.innerHTML = `
-            <div class="col-md-3 col-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Rata Mensile</h5>
-                        <p class="card-text">${this.formattaValuta(risultati[0].rataMensile)}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Interessi Totali</h5>
-                        <p class="card-text">${this.formattaValuta(risultati[risultati.length - 1].interessiTotaliStandard)}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Risparmio Totale</h5>
-                        <p class="card-text">${this.formattaValuta(risultati[risultati.length - 1].risparmioInteressi)}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Durata Effettiva</h5>
-                        <p class="card-text">${durataEffettiva} anni (-${anniRisparmiati} anni)</p>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        this.aggiornaGrafico(risultati);
-        this.aggiornaTabella(risultati);
+    #sommario .row {
+        margin: 0 -5px;
     }
 
-    aggiornaGrafico(risultati) {
-        const ctx = document.getElementById('mutuoChart').getContext('2d');
-        
-        if (this.chart) {
-            this.chart.destroy();
-        }
-
-        this.chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: risultati.map(r => `Anno ${r.anno}`),
-                datasets: [{
-                    label: 'Piano Standard',
-                    data: risultati.map(r => r.saldoStandard),
-                    borderColor: '#2563eb',
-                    tension: 0.1
-                }, {
-                    label: 'Piano con Extra',
-                    data: risultati.map(r => r.saldoConExtra),
-                    borderColor: '#10b981',
-                    tension: 0.1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false
-            }
-        });
+    #sommario .col-md-6 {
+        padding: 0 5px;
     }
 
-    calcolaRataMensile(importo, tassoAnnuale, anni) {
-        const tassoMensile = tassoAnnuale / 12 / 100;
-        const numeroRate = anni * 12;
-        
-        if (tassoMensile === 0) {
-            return importo / numeroRate;
-        }
-        
-        return (importo * tassoMensile * Math.pow(1 + tassoMensile, numeroRate)) / 
-               (Math.pow(1 + tassoMensile, numeroRate) - 1);
+    #sommario .card {
+        height: auto;
     }
 
-    calcolaTotaleInteressi(risultati) {
-        let totaleInteressi = 0;
-        for (const r of risultati) {
-            totaleInteressi += (r.saldoStandard - r.saldoConExtra);
-        }
-        return totaleInteressi;
+    .mb-3 {
+        margin-bottom: 0.8rem !important;
     }
 
-    inizializzaSliders() {
-        const configurazioni = {
-            importo: { min: 50000, max: 1000000, step: 1000, default: 200000 },
-            tasso: { min: 0.1, max: 10, step: 0.1, default: 3.5 },
-            durata: { min: 5, max: 30, step: 1, default: 20 },
-            extra: { min: 0, max: 20000, step: 100, default: 0 }
-        };
-
-        for (const [id, config] of Object.entries(configurazioni)) {
-            this.creaSlider(id, config);
-        }
-    }
-
-    verificaElementiHTML() {
-        const elementiNecessari = [
-            'mutuo-form',
-            'importo',
-            'tasso',
-            'durata',
-            'extra',
-            'sommario',
-            'dettaglio-tabella',
-            'mutuoChart'
-        ];
-
-        for (const id of elementiNecessari) {
-            const elemento = document.getElementById(id);
-            if (!elemento) {
-                console.error(`Elemento mancante: ${id}`);
-                return false;
-            }
-        }
-        return true;
-    }
-
-    inizializzaGestioneMobile() {
-        if ('ontouchstart' in window) {
-            // Previeni il bounce dello scroll orizzontale
-            document.addEventListener('touchmove', (e) => {
-                if (Math.abs(e.touches[0].clientX) > 10) {
-                    e.preventDefault();
-                }
-            }, { passive: false });
-
-            // Gestisci meglio gli input su mobile
-            document.querySelectorAll('input[type="range"], input[type="number"]').forEach(input => {
-                input.addEventListener('touchstart', (e) => {
-                    e.stopPropagation();
-                }, { passive: true });
-            });
-
-            // Ottimizza il grafico per mobile
-            if (window.innerWidth < 768) {
-                Chart.defaults.font.size = 12;
-                Chart.defaults.plugins.legend.position = 'bottom';
-            }
-        }
-    }
-
-    inizializzaSelettoreTipoDebito() {
-        const tipoDebito = document.getElementById('tipo-debito');
-        const importoLabel = document.getElementById('importo-label');
-        
-        // Configurazioni per tipo di debito
-        const configurazioni = {
-            mutuo: {
-                importoMin: 50000,
-                importoMax: 1000000,
-                importoDefault: 200000,
-                tassoMin: 0.1,
-                tassoMax: 10,
-                durataMax: 30,
-                label: 'Importo mutuo (€)'
-            },
-            prestito: {
-                importoMin: 1000,
-                importoMax: 100000,
-                importoDefault: 20000,
-                tassoMin: 1,
-                tassoMax: 15,
-                durataMax: 10,
-                label: 'Importo prestito (€)'
-            },
-            auto: {
-                importoMin: 5000,
-                importoMax: 150000,
-                importoDefault: 30000,
-                tassoMin: 1,
-                tassoMax: 12,
-                durataMax: 7,
-                label: 'Importo finanziamento (€)'
-            },
-            altro: {
-                importoMin: 1000,
-                importoMax: 500000,
-                importoDefault: 10000,
-                tassoMin: 0.1,
-                tassoMax: 20,
-                durataMax: 15,
-                label: 'Importo debito (€)'
-            }
-        };
-
-        tipoDebito.addEventListener('change', (e) => {
-            const config = configurazioni[e.target.value];
-            
-            // Aggiorna i limiti degli input
-            const importoInput = document.getElementById('importo');
-            const durataInput = document.getElementById('durata');
-            const tassoInput = document.getElementById('tasso');
-            
-            importoInput.min = config.importoMin;
-            importoInput.max = config.importoMax;
-            importoInput.value = config.importoDefault;
-            
-            durataInput.max = config.durataMax;
-            tassoInput.min = config.tassoMin;
-            tassoInput.max = config.tassoMax;
-            
-            // Aggiorna label
-            importoLabel.textContent = config.label;
-            
-            // Aggiorna classe per stile
-            document.body.className = `tipo-${e.target.value}`;
-            
-            // Aggiorna gli slider
-            this.aggiornaSliders(config);
-        });
-
-        // Imposta configurazione iniziale
-        tipoDebito.dispatchEvent(new Event('change'));
-    }
-
-    aggiornaSliders(config) {
-        const configurazioni = {
-            importo: { 
-                min: config.importoMin, 
-                max: config.importoMax, 
-                step: Math.max(100, config.importoMax / 1000),
-                default: config.importoDefault 
-            },
-            tasso: { 
-                min: config.tassoMin, 
-                max: config.tassoMax, 
-                step: 0.1, 
-                default: 3.5 
-            },
-            durata: { 
-                min: 1, 
-                max: config.durataMax, 
-                step: 1, 
-                default: Math.min(20, config.durataMax) 
-            },
-            extra: { 
-                min: 0, 
-                max: 30000,
-                step: 100, 
-                default: 0 
-            }
-        };
-
-        // Rimuovi gli slider esistenti
-        document.querySelectorAll('.slider-container').forEach(el => el.remove());
-
-        // Crea nuovi slider con le nuove configurazioni
-        for (const [id, sliderConfig] of Object.entries(configurazioni)) {
-            this.creaSlider(id, sliderConfig);
-        }
-    }
-
-    aggiornaTabella(risultati) {
-        const tbody = document.getElementById('dettaglio-tabella');
-        tbody.innerHTML = risultati.map(r => `
-            <tr>
-                <td>${r.anno}</td>
-                <td>${this.formattaValuta(r.saldoStandard)}</td>
-                <td>${this.formattaValuta(r.saldoConExtra)}</td>
-                <td>${this.formattaValuta(r.risparmioInteressi)}</td>
-            </tr>
-        `).join('');
+    .mb-4 {
+        margin-bottom: 1rem !important;
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    new CalcolatoreMutuo();
-});  
+@media (min-width: 768px) and (max-width: 991px) {
+    .sidebar {
+        max-width: 100%;
+        margin-bottom: 1.5rem;
+    }
+
+    .main-content {
+        width: 100%;
+        margin-left: 0;
+        padding: 0;
+    }
+}
+
+@media (min-width: 992px) {
+    .sidebar {
+        position: sticky;
+        top: 20px;
+        height: auto;
+        max-height: calc(100vh - 40px);
+        overflow-y: auto;
+    }
+
+    .main-content {
+        padding-left: 2rem;
+    }
+}
+
+@supports (-webkit-touch-callout: none) {
+    .form-control, 
+    .form-select {
+        font-size: 16px;
+    }
+
+    .table-responsive {
+        -webkit-overflow-scrolling: touch;
+    }
+
+    @media (max-width: 767px) {
+        .grafico-container {
+            width: 100vw;
+            margin-left: -10px;
+            margin-right: -10px;
+            padding: 10px;
+        }
+    }
+}
+
+/* Stili base per il container dello slider */
+.slider-container {
+    padding: 20px 0;
+    margin: 15px 0;
+    position: relative;
+    width: 100%;
+    touch-action: none;
+}
+
+/* Stili per il valore visualizzato */
+.value-display {
+    font-size: 14px;
+    font-weight: 500;
+    color: #2563eb;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+/* Stili base per lo slider */
+.form-range {
+    width: 100%;
+    height: 30px;
+    padding: 0;
+    background: transparent;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+}
+
+/* Stili per la traccia dello slider */
+.form-range::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 4px;
+    background: #e2e8f0;
+    border-radius: 2px;
+    border: none;
+}
+
+.form-range::-moz-range-track {
+    width: 100%;
+    height: 4px;
+    background: #e2e8f0;
+    border-radius: 2px;
+    border: none;
+}
+
+/* Stili per il thumb dello slider */
+.form-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #2563eb;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    margin-top: -10px;
+    transition: all 0.2s ease;
+}
+
+.form-range::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #2563eb;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: all 0.2s ease;
+}
+
+/* Effetti hover */
+.form-range::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.25);
+}
+
+.form-range::-moz-range-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.25);
+}
+
+/* Stili specifici per mobile */
+@media (max-width: 767px) {
+    .form-range {
+        height: 44px;
+    }
+
+    .form-range::-webkit-slider-thumb {
+        width: 28px;
+        height: 28px;
+    }
+
+    .form-range::-moz-range-thumb {
+        width: 28px;
+        height: 28px;
+    }
+
+    .value-display {
+        font-size: 16px;
+        margin-bottom: 8px;
+    }
+
+    .slider-container {
+        padding: 25px 0 15px 0;
+    }
+}
+
+.analisi-dettagliata .card {
+    height: 100%;
+}
+
+.alert {
+    font-size: 0.9rem;
+}
+
+.alert ul {
+    padding-left: 1.2rem;
+}
+
+.alert-warning {
+    background-color: #fff7ed;
+    border-color: #ffedd5;
+    color: #c2410c;
+}
+
+.alert-info {
+    background-color: #f0f9ff;
+    border-color: #e0f2fe;
+    color: #0369a1;
+}
+
+.grafico-container {
+    background-color: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+    height: 400px;
+}
+
+.table-responsive {
+    background-color: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    margin: 0 -1rem;
+    padding: 1rem;
+}
+
+@media (min-width: 992px) {
+    .container-fluid {
+        padding: 0;
+    }
+    
+    .row {
+        margin: 0;
+    }
+    
+    .sidebar {
+        margin: 1rem 0 1rem 1rem;
+    }
+    
+    .main-content {
+        padding: 1rem 1rem 1rem 2rem;
+    }
+}
+
+.analisi-dettagliata {
+    background-color: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+}
+
+.risultati {
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+@media (max-width: 992px) {
+    .sidebar {
+        position: relative;
+        height: auto;
+        max-width: 100%;
+        margin-bottom: 2rem;
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+}
+
+@media (min-width: 993px) {
+    .main-content {
+        margin-left: calc(25% + 1rem);
+    }
+}
+
+@media (max-width: 576px) {
+    .table th, 
+    .table td {
+        padding: 0.5rem;
+        font-size: 13px;
+    }
+
+    .table-responsive {
+        margin: 0 -1rem;
+        padding: 1rem;
+    }
+}
+
+.spinner-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.form-select {
+    padding: 0.75rem;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+    font-size: 16px;
+    background-color: white;
+}
+
+.form-select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Stili per i diversi tipi di debito */
+.tipo-mutuo .sidebar {
+    border-top: 4px solid #2563eb;
+}
+
+.tipo-prestito .sidebar {
+    border-top: 4px solid #10b981;
+}
+
+.tipo-auto .sidebar {
+    border-top: 4px solid #f59e0b;
+}
+
+.tipo-altro .sidebar {
+    border-top: 4px solid #8b5cf6;
+}
+
+/* Ottimizzazioni per iOS */
+html, body {
+    -webkit-overflow-scrolling: touch;
+    overflow-x: hidden;
+    position: relative;
+    height: 100%;
+}
+
+#calcolatore-wrapper {
+    -webkit-overflow-scrolling: touch;
+    overflow-y: visible;
+    overflow-x: hidden;
+}
+
+@supports (-webkit-touch-callout: none) {
+    /* Stili specifici per iOS */
+    body {
+        cursor: pointer; /* Migliora la reattività del touch */
+    }
+
+    .sidebar,
+    .main-content,
+    .table-responsive {
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Previeni il bounce dello scroll su iOS */
+    .sidebar {
+        position: relative;
+        overflow-y: visible;
+    }
+
+    /* Migliora la reattività degli input */
+    input[type="number"],
+    select,
+    .form-control,
+    .form-select {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+    }
+
+    /* Ottimizza lo scrolling della tabella */
+    .table-responsive {
+        overflow-y: hidden;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin: 0;
+        padding: 10px;
+        width: 100vw;
+        position: relative;
+        left: 50%;
+        right: 50%;
+        margin-left: -50vw;
+        margin-right: -50vw;
+    }
+}
+
+/* Migliora la performance dello scroll */
+* {
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Ottimizza il layout per evitare problemi di scroll */
+@media (max-width: 767px) {
+    .container-fluid {
+        overflow-x: hidden;
+    }
+
+    .row {
+        margin: 0;
+    }
+
+    .col-lg-3,
+    .col-md-4,
+    .col-lg-9,
+    .col-md-8 {
+        padding: 0;
+    }
+
+    .grafico-container {
+        margin: 10px 0;
+    }
+
+    #sommario .card {
+        margin: 5px 0;
+    }
+}
+
+/* Aggiungi questi stili per ottimizzare il rendering */
+.risultati {
+    will-change: transform;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+}
+
+.grafico-container {
+    will-change: transform;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+}
+
+/* Ottimizza lo scrolling su mobile */
+@media (max-width: 767px) {
+    body {
+        overscroll-behavior-y: none;
+    }
+    
+    .risultati {
+        overflow: hidden;
+        position: relative;
+    }
+
+    .table-responsive {
+        -webkit-overflow-scrolling: auto;
+        overflow-y: hidden;
+    }
+
+    #dettaglio-tabella tr {
+        contain: content;
+    }
+    
+    .grafico-container {
+        contain: content;
+        height: 300px !important;
+    }
+}
+
+/* Modifica gli stili base */
+html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+#calcolatore-wrapper {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 10px;
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+
+/* Modifica gli stili per mobile */
+@media (max-width: 767px) {
+    .container-fluid {
+        padding: 0;
+        overflow-x: hidden;
+        width: 100%;
+    }
+
+    .row {
+        margin: 0;
+        width: 100%;
+    }
+
+    .col-lg-3, 
+    .col-md-4, 
+    .col-lg-9, 
+    .col-md-8 {
+        padding: 0;
+        width: 100%;
+    }
+
+    .table-responsive {
+        margin: 0;
+        padding: 10px;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .grafico-container {
+        width: 100%;
+        margin: 10px 0;
+        padding: 10px;
+    }
+
+    .sidebar {
+        width: 100%;
+        margin: 0 0 1rem 0;
+        padding: 1rem;
+    }
+
+    .main-content {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    #sommario .row {
+        margin: 0;
+        width: 100%;
+    }
+
+    .risultati {
+        width: 100%;
+        overflow-x: hidden;
+    }
+}
+
+/* Rimuovi questi stili che causano lo scroll orizzontale */
+@supports (-webkit-touch-callout: none) {
+    .table-responsive {
+        width: 100%;
+        position: static;
+        left: auto;
+        right: auto;
+        margin-left: 0;
+        margin-right: 0;
+    }
+}
+
+/* Migliora gli slider per mobile */
+@media (max-width: 767px) {
+    .form-range {
+        height: 30px; /* Aumenta l'area cliccabile */
+    }
+
+    .form-range::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 28px !important;
+        height: 28px !important;
+        background: #2563eb;
+        border: 2px solid #fff;
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        margin-top: -14px; /* Centra verticalmente il thumb */
+    }
+
+    .form-range::-moz-range-thumb {
+        width: 28px !important;
+        height: 28px !important;
+        background: #2563eb;
+        border: 2px solid #fff;
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .form-range::-webkit-slider-runnable-track {
+        height: 4px;
+        background: #e2e8f0;
+        border-radius: 2px;
+    }
+
+    .form-range::-moz-range-track {
+        height: 4px;
+        background: #e2e8f0;
+        border-radius: 2px;
+    }
+
+    /* Aumenta lo spazio per il touch */
+    .slider-container {
+        padding: 10px 0;
+        margin: 15px 0;
+    }
+
+    /* Migliora la visualizzazione del valore */
+    .value-display {
+        font-size: 16px;
+        margin-bottom: 8px;
+        display: block;
+    }
+}
+
+/* Correggi lo scroll su mobile */
+@media (max-width: 767px) {
+    .risultati {
+        width: 100%;
+        overflow-x: hidden;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin: 0;
+        padding: 10px;
+        width: 100%;
+    }
+
+    .grafico-container {
+        width: 100%;
+        overflow: hidden;
+        margin: 10px 0;
+    }
+
+    #sommario .row {
+        margin: 0 -5px;
+    }
+
+    .sidebar {
+        overflow: visible;
+    }
+
+    .main-content {
+        overflow-x: hidden;
+    }
+}
+
+/* Blocca completamente lo scroll orizzontale */
+html, body {
+    max-width: 100%;
+    overflow-x: hidden !important;
+    position: relative;
+    touch-action: pan-y pinch-zoom;
+    -webkit-overflow-scrolling: touch;
+}
+
+#calcolatore-wrapper {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden !important;
+    position: relative;
+}
+
+/* Modifica gli stili per mobile */
+@media (max-width: 767px) {
+    .container-fluid,
+    .row,
+    .col-lg-3,
+    .col-md-4,
+    .col-lg-9,
+    .col-md-8,
+    .main-content,
+    .risultati,
+    .grafico-container,
+    .table-responsive {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+        overflow-x: hidden !important;
+        position: relative !important;
+        left: auto !important;
+        right: auto !important;
+        transform: none !important;
+    }
+
+    .table-responsive {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* Rimuovi tutti i margini negativi e le trasformazioni */
+@supports (-webkit-touch-callout: none) {
+    .table-responsive {
+        width: 100% !important;
+        position: static !important;
+        left: auto !important;
+        right: auto !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        transform: none !important;
+    }
+} 
