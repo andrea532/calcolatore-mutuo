@@ -302,44 +302,34 @@ class CalcolatoreMutuo {
 
     inizializzaGestioneMobile() {
         if ('ontouchstart' in window) {
-            // Ottimizza lo scroll su touch devices
-            document.addEventListener('touchmove', (e) => {
-                if (e.touches.length > 1) {
-                    e.preventDefault();
-                }
-            }, { passive: false });
-
-            // Gestisci meglio gli input su mobile
-            document.querySelectorAll('input[type="number"]').forEach(input => {
+            // Previeni il bounce dello scroll
+            document.body.style.overscrollBehavior = 'none';
+            
+            // Migliora la gestione degli input su mobile
+            document.querySelectorAll('input[type="range"], input[type="number"]').forEach(input => {
+                input.addEventListener('touchstart', (e) => {
+                    e.stopPropagation();
+                }, { passive: true });
+                
                 input.addEventListener('focus', () => {
                     setTimeout(() => {
-                        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }, 100);
-                });
-
-                input.addEventListener('blur', () => {
-                    setTimeout(() => {
-                        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        input.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'center',
+                            inline: 'center'
+                        });
                     }, 100);
                 });
             });
-        }
 
-        // Migliora la gestione del grafico su mobile
-        if (window.innerWidth < 768) {
-            Chart.defaults.font.size = 12;
-            Chart.defaults.plugins.legend.position = 'bottom';
-        }
-
-        // Gestione orientamento schermo ottimizzata
-        window.addEventListener('orientationchange', () => {
-            if (this.chart) {
-                setTimeout(() => {
-                    this.chart.resize();
-                    window.scrollTo(0, window.scrollY);
-                }, 100);
+            // Ottimizza il grafico per mobile
+            if (window.innerWidth < 768) {
+                Chart.defaults.font.size = 12;
+                Chart.defaults.plugins.legend.position = 'bottom';
+                Chart.defaults.plugins.legend.labels.boxWidth = 12;
+                Chart.defaults.plugins.legend.labels.padding = 10;
             }
-        });
+        }
     }
 
     inizializzaSelettoreTipoDebito() {
