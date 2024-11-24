@@ -69,12 +69,15 @@ class CalcolatoreMutuo {
 
     creaSlider(id, config) {
         const container = document.createElement('div');
-        container.className = 'slider-container mb-3';
+        container.className = 'slider-container';
+        
+        const labelContainer = document.createElement('div');
+        labelContainer.className = 'd-flex justify-content-between align-items-center';
         
         const label = document.createElement('label');
-        label.textContent = `${id.charAt(0).toUpperCase() + id.slice(1)}: `;
-        label.className = 'form-label d-block';
-
+        label.textContent = this.getLabelText(id);
+        label.className = 'form-label';
+        
         const valueDisplay = document.createElement('span');
         valueDisplay.className = 'value-display';
         
@@ -85,20 +88,56 @@ class CalcolatoreMutuo {
         slider.max = config.max;
         slider.step = config.step;
         slider.value = config.default;
-
+        
         const input = document.getElementById(id);
         input.value = config.default;
+        valueDisplay.textContent = this.formattaValore(id, config.default);
+        
+        // Gestione touch ottimizzata solo per gli slider
+        if ('ontouchstart' in window) {
+            slider.addEventListener('touchstart', (e) => {
+                e.stopPropagation();
+            }, { passive: true });
 
-        slider.addEventListener('input', (e) => {
-            input.value = e.target.value;
-            valueDisplay.textContent = this.formattaValore(id, e.target.value);
+            slider.addEventListener('touchmove', (e) => {
+                if (e.target === slider) {
+                    e.stopPropagation();
+                }
+            }, { passive: true });
+        }
+        
+        const updateValue = (value) => {
+            input.value = value;
+            valueDisplay.textContent = this.formattaValore(id, value);
             this.calcolaRisultatiLive();
+        };
+        
+        slider.addEventListener('input', (e) => {
+            updateValue(e.target.value);
         });
-
-        container.appendChild(label);
-        container.appendChild(valueDisplay);
+        
+        input.addEventListener('change', (e) => {
+            let value = parseFloat(e.target.value);
+            value = Math.min(Math.max(value, config.min), config.max);
+            slider.value = value;
+            updateValue(value);
+        });
+        
+        labelContainer.appendChild(label);
+        labelContainer.appendChild(valueDisplay);
+        container.appendChild(labelContainer);
         container.appendChild(slider);
         input.parentNode.appendChild(container);
+    }
+
+    getLabelText(id) {
+        const labels = {
+            importo: 'Importo del finanziamento',
+            tasso: 'Tasso di interesse annuale',
+            durata: 'Durata del finanziamento',
+            extra: 'Pagamento extra annuale'
+        };
+        return labels[id] || id.charAt(0).toUpperCase() + id.slice(1);
     }
 
     formattaValore(tipo, valore) {
@@ -302,32 +341,24 @@ class CalcolatoreMutuo {
 
     inizializzaGestioneMobile() {
         if ('ontouchstart' in window) {
-            // Previeni il bounce dello scroll
-            document.body.style.overscrollBehavior = 'none';
-            
-            // Migliora la gestione degli input su mobile
+            // Previeni il bounce dello scroll orizzontale
+            document.addEventListener('touchmove', (e) => {
+                if (Math.abs(e.touches[0].clientX) > 10) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+
+            // Gestisci meglio gli input su mobile
             document.querySelectorAll('input[type="range"], input[type="number"]').forEach(input => {
                 input.addEventListener('touchstart', (e) => {
                     e.stopPropagation();
                 }, { passive: true });
-                
-                input.addEventListener('focus', () => {
-                    setTimeout(() => {
-                        input.scrollIntoView({ 
-                            behavior: 'smooth', 
-                            block: 'center',
-                            inline: 'center'
-                        });
-                    }, 100);
-                });
             });
 
             // Ottimizza il grafico per mobile
             if (window.innerWidth < 768) {
                 Chart.defaults.font.size = 12;
                 Chart.defaults.plugins.legend.position = 'bottom';
-                Chart.defaults.plugins.legend.labels.boxWidth = 12;
-                Chart.defaults.plugins.legend.labels.padding = 10;
             }
         }
     }
