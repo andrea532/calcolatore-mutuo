@@ -136,7 +136,14 @@
                             </div>
                             <div class="mb-3">
                                 <label for="extra" class="form-label">Pagamento extra annuale (€)</label>
-                                <input type="number" class="form-control" id="extra" min="0" inputmode="numeric" pattern="[0-9]*">
+                                <input type="number" 
+                                       class="form-control" 
+                                       id="extra" 
+                                       min="0" 
+                                       max="10000"
+                                       step="100"
+                                       inputmode="numeric" 
+                                       pattern="[0-9]*">
                             </div>
                             
                             <div class="d-grid gap-2">
