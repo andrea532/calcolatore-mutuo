@@ -203,34 +203,111 @@ body {
     }
 }
 
+/* Stili base per il container dello slider */
 .slider-container {
-    margin-top: 1rem;
+    padding: 20px 0;
+    margin: 15px 0;
+    position: relative;
+    width: 100%;
+    touch-action: pan-x;
 }
 
+/* Stili per il valore visualizzato */
+.value-display {
+    font-size: 14px;
+    font-weight: 500;
+    color: #2563eb;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+/* Stili base per lo slider */
 .form-range {
     width: 100%;
-    height: 1.5rem;
+    height: 30px;
     padding: 0;
-    background-color: transparent;
+    background: transparent;
     -webkit-appearance: none;
     appearance: none;
-}
-
-.form-range::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 1rem;
-    height: 1rem;
-    background: #2563eb;
-    border-radius: 50%;
     cursor: pointer;
 }
 
-.value-display {
-    display: inline-block;
-    margin-left: 0.5rem;
-    font-weight: 500;
-    color: #2563eb;
+/* Stili per la traccia dello slider */
+.form-range::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 4px;
+    background: #e2e8f0;
+    border-radius: 2px;
+    border: none;
+}
+
+.form-range::-moz-range-track {
+    width: 100%;
+    height: 4px;
+    background: #e2e8f0;
+    border-radius: 2px;
+    border: none;
+}
+
+/* Stili per il thumb dello slider */
+.form-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #2563eb;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    margin-top: -10px;
+    transition: all 0.2s ease;
+}
+
+.form-range::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #2563eb;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: all 0.2s ease;
+}
+
+/* Effetti hover */
+.form-range::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.25);
+}
+
+.form-range::-moz-range-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.25);
+}
+
+/* Stili specifici per mobile */
+@media (max-width: 767px) {
+    .form-range {
+        height: 44px;
+    }
+
+    .form-range::-webkit-slider-thumb {
+        width: 28px;
+        height: 28px;
+    }
+
+    .form-range::-moz-range-thumb {
+        width: 28px;
+        height: 28px;
+    }
+
+    .value-display {
+        font-size: 16px;
+        margin-bottom: 8px;
+    }
+
+    .slider-container {
+        padding: 25px 0 15px 0;
+    }
 }
 
 .analisi-dettagliata .card {
@@ -384,10 +461,10 @@ body {
 
 /* Ottimizzazioni per iOS */
 html, body {
-    -webkit-overflow-scrolling: touch;
     overflow-x: hidden;
-    position: relative;
-    height: 100%;
+    -webkit-overflow-scrolling: touch;
+    height: auto;
+    touch-action: auto;
 }
 
 #calcolatore-wrapper {
@@ -512,11 +589,10 @@ html, body {
     }
 }
 
-/* Modifica gli stili esistenti */
+/* Modifica gli stili base */
 html, body {
+    max-width: 100%;
     overflow-x: hidden;
-    width: 100%;
-    position: relative;
     margin: 0;
     padding: 0;
 }
@@ -530,100 +606,218 @@ html, body {
     box-sizing: border-box;
 }
 
-/* Migliora gli slider per mobile */
-.form-range::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 24px !important;  /* Aumentato da 1rem */
-    height: 24px !important; /* Aumentato da 1rem */
-    background: #2563eb;
-    border-radius: 50%;
-    cursor: pointer;
-    border: 2px solid #fff;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-}
-
-.form-range::-moz-range-thumb {
-    width: 24px !important;
-    height: 24px !important;
-    background: #2563eb;
-    border-radius: 50%;
-    cursor: pointer;
-    border: 2px solid #fff;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-}
-
-/* Ottimizza la visualizzazione mobile */
+/* Modifica gli stili per mobile */
 @media (max-width: 767px) {
+    .container-fluid {
+        padding: 0;
+        overflow-x: hidden;
+        width: 100%;
+    }
+
+    .row {
+        margin: 0;
+        width: 100%;
+    }
+
+    .col-lg-3, 
+    .col-md-4, 
+    .col-lg-9, 
+    .col-md-8 {
+        padding: 0;
+        width: 100%;
+    }
+
     .table-responsive {
         margin: 0;
         padding: 10px;
         width: 100%;
-        max-width: 100%;
         overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .grafico-container {
+        width: 100%;
+        margin: 10px 0;
+        padding: 10px;
+    }
+
+    .sidebar {
+        width: 100%;
+        margin: 0 0 1rem 0;
+        padding: 1rem;
+    }
+
+    .main-content {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    #sommario .row {
+        margin: 0;
+        width: 100%;
+    }
+
+    .risultati {
+        width: 100%;
+        overflow-x: hidden;
+    }
+}
+
+/* Rimuovi questi stili che causano lo scroll orizzontale */
+@supports (-webkit-touch-callout: none) {
+    .table-responsive {
+        width: 100%;
         position: static;
         left: auto;
         right: auto;
         margin-left: 0;
         margin-right: 0;
     }
+}
+
+/* Migliora gli slider per mobile */
+@media (max-width: 767px) {
+    .form-range {
+        height: 30px; /* Aumenta l'area cliccabile */
+    }
+
+    .form-range::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 28px !important;
+        height: 28px !important;
+        background: #2563eb;
+        border: 2px solid #fff;
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        margin-top: -14px; /* Centra verticalmente il thumb */
+    }
+
+    .form-range::-moz-range-thumb {
+        width: 28px !important;
+        height: 28px !important;
+        background: #2563eb;
+        border: 2px solid #fff;
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .form-range::-webkit-slider-runnable-track {
+        height: 4px;
+        background: #e2e8f0;
+        border-radius: 2px;
+    }
+
+    .form-range::-moz-range-track {
+        height: 4px;
+        background: #e2e8f0;
+        border-radius: 2px;
+    }
+
+    /* Aumenta lo spazio per il touch */
+    .slider-container {
+        padding: 10px 0;
+        margin: 15px 0;
+    }
+
+    /* Migliora la visualizzazione del valore */
+    .value-display {
+        font-size: 16px;
+        margin-bottom: 8px;
+        display: block;
+    }
+}
+
+/* Correggi lo scroll su mobile */
+@media (max-width: 767px) {
+    .risultati {
+        width: 100%;
+        overflow-x: hidden;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin: 0;
+        padding: 10px;
+        width: 100%;
+    }
 
     .grafico-container {
         width: 100%;
-        margin: 0 0 1rem 0;
-        padding: 10px;
+        overflow: hidden;
+        margin: 10px 0;
     }
 
     #sommario .row {
         margin: 0 -5px;
     }
 
-    #sommario .col-6 {
-        padding: 0 5px;
+    .sidebar {
+        overflow: visible;
     }
 
-    .card {
-        margin-bottom: 10px;
-    }
-
-    .card-body {
-        padding: 0.8rem;
-    }
-
-    .card-title {
-        font-size: 0.9rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .card-text {
-        font-size: 1rem;
+    .main-content {
+        overflow-x: hidden;
     }
 }
 
-/* Migliora la visualizzazione della tabella su mobile */
-@media (max-width: 767px) {
-    .table {
-        width: 100%;
-        margin: 0;
-    }
+/* Blocca completamente lo scroll orizzontale */
+html, body {
+    max-width: 100%;
+    overflow-x: hidden !important;
+    position: relative;
+    touch-action: pan-y pinch-zoom;
+    -webkit-overflow-scrolling: touch;
+}
 
-    .table th, 
-    .table td {
-        white-space: nowrap;
-        padding: 8px;
+#calcolatore-wrapper {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden !important;
+    position: relative;
+}
+
+/* Modifica gli stili per mobile */
+@media (max-width: 767px) {
+    .container-fluid,
+    .row,
+    .col-lg-3,
+    .col-md-4,
+    .col-lg-9,
+    .col-md-8,
+    .main-content,
+    .risultati,
+    .grafico-container,
+    .table-responsive {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+        overflow-x: hidden !important;
+        position: relative !important;
+        left: auto !important;
+        right: auto !important;
+        transform: none !important;
     }
 
     .table-responsive {
-        border-radius: 8px;
-        background: white;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
     }
 }
 
-/* Ottimizza il rendering */
-.risultati, 
-.grafico-container, 
-.table-responsive {
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
-    backface-visibility: hidden;
+/* Rimuovi tutti i margini negativi e le trasformazioni */
+@supports (-webkit-touch-callout: none) {
+    .table-responsive {
+        width: 100% !important;
+        position: static !important;
+        left: auto !important;
+        right: auto !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        transform: none !important;
+    }
 } 
