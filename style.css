@@ -820,4 +820,78 @@ html, body {
         margin-right: 0 !important;
         transform: none !important;
     }
+}
+
+/* Rimuovi tutti i controlli eccessivi dello scroll */
+html, body {
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: 100%;
+    position: relative;
+    touch-action: pan-y; /* Permetti solo lo scroll verticale */
+    -webkit-overflow-scrolling: touch;
+}
+
+#calcolatore-wrapper {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 15px;
+    overflow-y: visible;
+}
+
+/* Gestione slider */
+.slider-container {
+    padding: 10px 0;
+    margin: 15px 0;
+    position: relative;
+    width: 100%;
+}
+
+.form-range {
+    touch-action: none; /* Blocca lo scroll solo sugli slider */
+}
+
+/* Mobile styles */
+@media (max-width: 767px) {
+    .container-fluid,
+    .row,
+    .col-lg-3,
+    .col-md-4,
+    .col-lg-9,
+    .col-md-8,
+    .main-content,
+    .risultati,
+    .grafico-container {
+        overflow-y: visible;
+        width: 100%;
+        max-width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .sidebar {
+        overflow: visible;
+        height: auto;
+    }
+}
+
+/* Rimuovi i controlli iOS eccessivi */
+@supports (-webkit-touch-callout: none) {
+    body {
+        position: static;
+    }
+
+    .sidebar,
+    .main-content {
+        -webkit-overflow-scrolling: touch;
+        overflow: visible;
+    }
 } 
