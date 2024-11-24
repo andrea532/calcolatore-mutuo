@@ -342,23 +342,34 @@ class CalcolatoreMutuo {
 
     inizializzaGestioneMobile() {
         if ('ontouchstart' in window) {
-            // Rimuovi il preventDefault generale
-            document.querySelectorAll('input[type="range"]').forEach(input => {
-                input.addEventListener('touchstart', (e) => {
+            document.querySelectorAll('.form-range').forEach(slider => {
+                slider.addEventListener('touchstart', (e) => {
                     e.stopPropagation();
-                }, { passive: true });
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    const value = this.calculateSliderValue(slider, touch);
+                    slider.value = value;
+                    slider.dispatchEvent(new Event('input'));
+                }, { passive: false });
 
-                input.addEventListener('touchmove', (e) => {
+                slider.addEventListener('touchmove', (e) => {
                     e.stopPropagation();
-                }, { passive: true });
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    const value = this.calculateSliderValue(slider, touch);
+                    slider.value = value;
+                    slider.dispatchEvent(new Event('input'));
+                }, { passive: false });
             });
-
-            // Ottimizza il grafico per mobile
-            if (window.innerWidth < 768) {
-                Chart.defaults.font.size = 12;
-                Chart.defaults.plugins.legend.position = 'bottom';
-            }
         }
+    }
+
+    calculateSliderValue(slider, touch) {
+        const rect = slider.getBoundingClientRect();
+        const position = touch.clientX - rect.left;
+        const percentage = Math.max(0, Math.min(1, position / rect.width));
+        const range = slider.max - slider.min;
+        return Math.round((percentage * range + parseFloat(slider.min)) / slider.step) * slider.step;
     }
 
     inizializzaSelettoreTipoDebito() {
