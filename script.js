@@ -342,16 +342,13 @@ class CalcolatoreMutuo {
 
     inizializzaGestioneMobile() {
         if ('ontouchstart' in window) {
-            // Previeni il bounce dello scroll orizzontale
-            document.addEventListener('touchmove', (e) => {
-                if (Math.abs(e.touches[0].clientX) > 10) {
-                    e.preventDefault();
-                }
-            }, { passive: false });
-
-            // Gestisci meglio gli input su mobile
-            document.querySelectorAll('input[type="range"], input[type="number"]').forEach(input => {
+            // Rimuovi il preventDefault generale
+            document.querySelectorAll('input[type="range"]').forEach(input => {
                 input.addEventListener('touchstart', (e) => {
+                    e.stopPropagation();
+                }, { passive: true });
+
+                input.addEventListener('touchmove', (e) => {
                     e.stopPropagation();
                 }, { passive: true });
             });
