@@ -29,6 +29,8 @@ html, body {
 
     .col-lg-9, .col-md-8 {
         padding-bottom: 20px;
+        -webkit-overflow-scrolling: touch;
+        overflow-y: auto;
     }
 
     .table-responsive {
