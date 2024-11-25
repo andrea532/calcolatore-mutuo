@@ -3,8 +3,6 @@ html, body {
     padding: 0;
     background-color: #f8fafc;
     font-family: 'Inter', sans-serif;
-    height: 100%;
-    -webkit-overflow-scrolling: touch;
 }
 
 #calcolatore-wrapper {
@@ -13,17 +11,11 @@ html, body {
 }
 
 @media (max-width: 767px) {
-    body {
-        overflow-y: auto;
-        position: relative;
-    }
-
     .container-fluid {
         padding: 10px;
     }
 
     .sidebar {
-        position: relative;
         background: white;
         padding: 15px;
         margin: 0;
@@ -31,14 +23,8 @@ html, body {
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
-    .col-lg-9, .col-md-8 {
-        padding-bottom: 20px;
-    }
-
     .table-responsive {
         overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        touch-action: pan-x pan-y;
     }
 
     .table {
@@ -53,7 +39,6 @@ html, body {
         background: white;
         border-radius: 8px;
         box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        touch-action: pan-y pinch-zoom;
     }
 
     #sommario {
