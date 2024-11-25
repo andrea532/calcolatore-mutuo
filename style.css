@@ -3,7 +3,7 @@ html, body {
     padding: 0;
     background-color: #f8fafc;
     font-family: 'Inter', sans-serif;
-    height: 100%;
+    min-height: 100%;
     overflow-x: hidden;
 }
 
@@ -13,11 +13,12 @@ html, body {
 }
 
 @media (max-width: 767px) {
+    body {
+        position: relative;
+    }
+
     .container-fluid {
         padding: 10px;
-        overflow-x: hidden;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
     }
 
     .sidebar {
