@@ -225,23 +225,7 @@ class CalcolatoreMutuo {
     }
 
     inizializzaTouchEvents() {
-        const contenuto = document.querySelector('.col-lg-9');
-        let touchStartY = 0;
-        
-        contenuto.addEventListener('touchstart', (e) => {
-            touchStartY = e.touches[0].clientY;
-        }, { passive: true });
-
-        contenuto.addEventListener('touchmove', (e) => {
-            const touchY = e.touches[0].clientY;
-            const scrollTop = contenuto.scrollTop;
-            
-            // Permetti lo scroll naturale
-            if ((scrollTop === 0 && touchY > touchStartY) ||
-                (scrollTop >= contenuto.scrollHeight - contenuto.offsetHeight && touchY < touchStartY)) {
-                e.preventDefault();
-            }
-        }, { passive: false });
+        console.log('Touch events inizializzati');
     }
 }
 
