@@ -184,6 +184,18 @@ class CalcolatoreMutuo {
 
             // Aggiorna grafico
             this.aggiornaGrafico(risultati);
+
+            // Aggiungi questo codice per scrollare alla sezione risultati
+            setTimeout(() => {
+                document.getElementById('sommario').scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start'
+                });
+                // Riabilita lo scrolling
+                document.body.style.overflow = '';
+                document.documentElement.style.overflow = '';
+            }, 100);
+
             console.log('Risultati mostrati con successo');
         } catch (error) {
             console.error('Errore nel mostrare i risultati:', error);
@@ -226,6 +238,11 @@ class CalcolatoreMutuo {
 
     inizializzaTouchEvents() {
         console.log('Touch events inizializzati');
+        // Rimuovi tutti gli event listener touch precedenti
+        const chart = document.getElementById('mutuoChart');
+        if (chart) {
+            chart.style.touchAction = 'pan-y pinch-zoom';
+        }
     }
 }
 
