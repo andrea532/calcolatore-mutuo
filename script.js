@@ -13,6 +13,9 @@ class CalcolatoreMutuo {
         this.inizializzaEventi();
         this.inizializzaSelettoreTipoDebito();
         console.log('Inizializzazione completata');
+        
+        // Aggiungi gestione touch events
+        this.inizializzaTouchEvents();
     }
 
     verificaElementiHTML() {
@@ -211,9 +214,34 @@ class CalcolatoreMutuo {
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'nearest',
+                    intersect: false
+                },
+                events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove']
             }
         });
+    }
+
+    inizializzaTouchEvents() {
+        const contenuto = document.querySelector('.col-lg-9');
+        let touchStartY = 0;
+        
+        contenuto.addEventListener('touchstart', (e) => {
+            touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+
+        contenuto.addEventListener('touchmove', (e) => {
+            const touchY = e.touches[0].clientY;
+            const scrollTop = contenuto.scrollTop;
+            
+            // Permetti lo scroll naturale
+            if ((scrollTop === 0 && touchY > touchStartY) ||
+                (scrollTop >= contenuto.scrollHeight - contenuto.offsetHeight && touchY < touchStartY)) {
+                e.preventDefault();
+            }
+        }, { passive: false });
     }
 }
 
