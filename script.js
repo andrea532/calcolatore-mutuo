@@ -27,6 +27,7 @@ class CalcolatoreMutuo {
         this.inizializzaEventi();
         this.inizializzaGestioneMobile();
         this.inizializzaSelettoreTipoDebito();
+        this.handleIOSScroll();
     }
 
     inizializzaEventi() {
@@ -341,27 +342,38 @@ class CalcolatoreMutuo {
     }
 
     inizializzaGestioneMobile() {
+        // Migliora lo scrolling su iOS
+        document.addEventListener('touchmove', (e) => {
+            if (!e.target.closest('.form-range')) {
+                e.stopPropagation();
+            }
+        }, { passive: true });
+
         if ('ontouchstart' in window) {
             document.querySelectorAll('.form-range').forEach(slider => {
                 slider.addEventListener('touchstart', (e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    const touch = e.touches[0];
-                    const value = this.calculateSliderValue(slider, touch);
-                    slider.value = value;
-                    slider.dispatchEvent(new Event('input'));
-                }, { passive: false });
+                    if (e.target.closest('.form-range')) {
+                        e.stopPropagation();
+                    }
+                }, { passive: true });
 
                 slider.addEventListener('touchmove', (e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    const touch = e.touches[0];
-                    const value = this.calculateSliderValue(slider, touch);
-                    slider.value = value;
-                    slider.dispatchEvent(new Event('input'));
-                }, { passive: false });
+                    if (e.target.closest('.form-range')) {
+                        e.stopPropagation();
+                    }
+                }, { passive: true });
             });
         }
+
+        // Aggiungi gestione scroll elastico per iOS
+        document.body.style.overscrollBehaviorY = 'none';
+        
+        // Previeni il bounce effect su iOS
+        document.addEventListener('touchmove', (e) => {
+            if (e.target.closest('.sidebar') || e.target.closest('.table-responsive')) {
+                e.stopPropagation();
+            }
+        }, { passive: true });
     }
 
     calculateSliderValue(slider, touch) {
@@ -457,49 +469,4 @@ class CalcolatoreMutuo {
             tasso: { 
                 min: config.tassoMin, 
                 max: config.tassoMax, 
-                step: 0.1, 
-                default: 3.5 
-            },
-            durata: { 
-                min: 1, 
-                max: config.durataMax, 
-                step: 1, 
-                default: Math.min(20, config.durataMax) 
-            },
-            extra: { 
-                min: 0, 
-                max: 10000,
-                step: 100, 
-                default: 0 
-            }
-        };
-
-        // Rimuovi gli slider esistenti
-        document.querySelectorAll('.slider-container').forEach(el => el.remove());
-
-        // Crea nuovi slider con le nuove configurazioni
-        for (const [id, sliderConfig] of Object.entries(configurazioni)) {
-            this.creaSlider(id, sliderConfig);
-        }
-    }
-
-    aggiornaTabella(risultati) {
-        const tbody = document.getElementById('dettaglio-tabella');
-        tbody.innerHTML = risultati.map(r => `
-            <tr>
-                <td>${r.anno}</td>
-                <td>${this.formattaValuta(r.saldoStandard)}</td>
-                <td>${this.formattaValuta(r.saldoConExtra)}</td>
-                <td>${this.formattaValuta(r.risparmioInteressi)}</td>
-            </tr>
-        `).join('');
-    }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    new CalcolatoreMutuo();
-});  
-
-document.addEventListener('DOMContentLoaded', () => {
-    new CalcolatoreMutuo();
-});  
+     
