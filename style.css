@@ -1,240 +1,74 @@
 html, body {
-    max-width: 100%;
-    overflow-x: hidden;
-    height: 100%;
-    position: relative;
     margin: 0;
     padding: 0;
     background-color: #f8fafc;
     font-family: 'Inter', sans-serif;
-    -webkit-overflow-scrolling: touch;
-    touch-action: pan-y pinch-zoom;
-    -webkit-user-select: none;
-    user-select: none;
-    -webkit-overflow-scrolling: touch;
-    overflow-y: scroll;
-    position: fixed;
-    width: 100%;
-    height: 100%;
 }
 
 #calcolatore-wrapper {
-    width: 100%;
-    max-width: 100%;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    overflow-x: hidden;
-    position: fixed;
-    touch-action: pan-y;
-}
-
-.table-responsive, 
-.sidebar, 
-.grafico-container {
-    -webkit-overflow-scrolling: touch;
-    will-change: transform;
-    transform: translateZ(0);
-    backface-visibility: hidden;
-    -webkit-overflow-scrolling: touch;
-    overflow-y: scroll;
-    overscroll-behavior: none;
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
 @media (max-width: 767px) {
-    body {
-        -webkit-user-select: none;
-        user-select: none;
+    .container-fluid {
+        padding: 10px;
     }
 
-    .container-fluid,
-    .row,
-    .col-lg-3,
-    .col-md-4,
-    .col-lg-9,
-    .col-md-8,
-    .main-content,
-    .risultati,
-    .grafico-container {
-        width: 100% !important;
-        max-width: 100% !important;
-        margin: 0 !important;
-        padding: 10px !important;
-        position: relative;
+    .sidebar {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: white;
+        padding: 15px;
+        margin: -10px -10px 10px -10px;
+        border-bottom: 1px solid #eee;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .sidebar h3 {
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+    }
+
+    .form-control, 
+    .form-select {
+        font-size: 16px;
+        height: 40px;
     }
 
     .table-responsive {
-        width: 100%;
+        margin: 0 -10px;
+        padding: 0 10px;
         overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        margin: 0;
-        padding: 10px;
-        scroll-snap-type: x mandatory;
-        position: relative;
-        z-index: 1;
-        background-color: white;
-        border-radius: 12px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        -webkit-overflow-scrolling: touch;
-        overflow-y: scroll;
-        overscroll-behavior: none;
     }
 
-    .sidebar {
-        position: relative;
-        height: auto;
-        width: 100%;
-        margin: 0 0 1rem 0;
-        padding: 1rem;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-        position: relative;
-        overflow: visible;
+    .table {
+        font-size: 14px;
+        white-space: nowrap;
     }
 
-    .risultati {
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-        padding-bottom: 60px;
-        scroll-padding-bottom: 20px;
-    }
-
-    .main-content {
-        height: auto;
-        overflow-y: visible;
-        -webkit-overflow-scrolling: touch;
-        padding-bottom: env(safe-area-inset-bottom, 20px);
+    #sommario .col-6 {
+        padding: 5px;
     }
 
     #sommario .card {
-        margin-bottom: 0.5rem;
-        padding: 0.75rem;
+        margin-bottom: 10px;
     }
 
     #sommario .card-body {
-        padding: 0.75rem;
+        padding: 10px;
     }
 
-    #sommario .card-title {
-        font-size: 0.9rem;
-        margin-bottom: 0.25rem;
-    }
-
-    #sommario .card-text {
-        font-size: 1rem;
+    .grafico-container {
+        margin: 0 -10px 1rem -10px;
+        padding: 10px;
     }
 }
 
-.slider-container {
-    padding: 15px 0;
-    margin: 10px 0;
-    position: relative;
-    width: 100%;
-    touch-action: none;
-    -webkit-tap-highlight-color: transparent;
-}
-
-.form-range {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 100%;
-    height: 44px;
-    background: transparent;
-    padding: 10px 0;
-    touch-action: manipulation;
-    cursor: pointer;
-}
-
-.form-range::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 32px;
-    height: 32px;
-    background: #2563eb;
-    border: 2px solid #fff;
-    border-radius: 50%;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    margin-top: -14px;
-    touch-action: manipulation;
-}
-
-.form-range::-moz-range-thumb {
-    width: 28px;
-    height: 28px;
-    background: #2563eb;
-    border: 2px solid #fff;
-    border-radius: 50%;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
-
-.form-range::-webkit-slider-runnable-track {
-    width: 100%;
-    height: 4px;
-    background: #e2e8f0;
-    border-radius: 2px;
-}
-
-.form-range::-moz-range-track {
-    width: 100%;
-    height: 4px;
-    background: #e2e8f0;
-    border-radius: 2px;
-}
-
-@supports (-webkit-touch-callout: none) {
-    .form-range {
-        height: 50px;
-    }
-    
-    .form-range::-webkit-slider-thumb {
-        width: 36px;
-        height: 36px;
-    }
-}
-
-.grafico-container {
-    margin-bottom: 1rem;
-    background-color: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    position: relative;
-    z-index: 1;
-}
-
-.table {
-    margin-bottom: 0;
-}
-
-* {
-    -webkit-overflow-scrolling: touch;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-}
-
-@supports (-webkit-touch-callout: none) {
-    /* Stili specifici per iOS */
-    body {
-        overscroll-behavior-y: none;
-    }
-    
-    #calcolatore-wrapper {
-        position: fixed;
-        overflow-y: scroll;
-        -webkit-overflow-scrolling: touch;
-    }
-    
+@media (min-width: 768px) {
     .sidebar {
-        position: relative;
-        overflow: visible;
+        position: sticky;
+        top: 20px;
     }
-}
-
-input[type="range"] {
-    -webkit-appearance: none;
-    appearance: none;
-    touch-action: none;
-}
-
-.container-fluid {
-    overflow-x: hidden;
-    max-width: 100%;
 } 
