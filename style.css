@@ -4,6 +4,7 @@ html, body {
     background-color: #f8fafc;
     font-family: 'Inter', sans-serif;
     height: 100%;
+    overflow-x: hidden;
 }
 
 #calcolatore-wrapper {
@@ -14,6 +15,9 @@ html, body {
 @media (max-width: 767px) {
     .container-fluid {
         padding: 10px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     .sidebar {
@@ -29,8 +33,6 @@ html, body {
 
     .col-lg-9, .col-md-8 {
         padding-bottom: 20px;
-        -webkit-overflow-scrolling: touch;
-        overflow-y: auto;
     }
 
     .table-responsive {
@@ -39,7 +41,6 @@ html, body {
         padding: 0 10px;
         position: relative;
         width: calc(100% + 20px);
-        -webkit-momentum-scrolling: touch;
     }
 
     .table {
