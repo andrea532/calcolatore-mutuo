@@ -1,20 +1,6 @@
 class CalcolatoreMutuo {
     constructor() {
-        this.verificaElementiHTML = () => {
-            const elementiRichiesti = [
-                'mutuo-form',
-                'importo',
-                'tasso',
-                'durata',
-                'extra',
-                'sommario',
-                'mutuoChart',
-                'dettaglio-tabella'
-            ];
-            
-            return elementiRichiesti.every(id => document.getElementById(id));
-        };
-
+        console.log('Inizializzazione CalcolatoreMutuo');
         if (!this.verificaElementiHTML()) {
             console.error('Elementi HTML mancanti.');
             return;
@@ -25,370 +11,34 @@ class CalcolatoreMutuo {
         this.ultimiRisultati = null;
         
         this.inizializzaEventi();
-        this.inizializzaGestioneMobile();
         this.inizializzaSelettoreTipoDebito();
-        this.handleIOSScroll();
-    }
-
-    inizializzaEventi() {
-        this.form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.calcolaRisultati();
-        });
-
-        this.form.addEventListener('reset', () => {
-            if (this.chart) {
-                this.chart.destroy();
-            }
-            document.getElementById('sommario').innerHTML = '';
-            document.getElementById('dettaglio-tabella').innerHTML = '';
-        });
-    }
-
-    calcolaRisultati() {
-        // Ottieni i valori dal form
-        const importo = parseFloat(document.getElementById('importo').value);
-        const tasso = parseFloat(document.getElementById('tasso').value);
-        const anni = parseInt(document.getElementById('durata').value);
-        const extra = parseFloat(document.getElementById('extra').value) || 0;
-
-        if (importo && tasso && anni) {
-            try {
-                const rataMensile = this.calcolaRataMensile(importo, tasso, anni);
-                const risultati = this.calcolaAmmortamento(importo, tasso, anni, extra);
-                
-                this.mostraRisultati(risultati);
-                this.ultimiRisultati = risultati;
-            } catch (error) {
-                console.error('Errore nel calcolo:', error);
-                alert('Si è verificato un errore nel calcolo. Verifica i dati inseriti.');
-            }
-        } else {
-            alert('Inserisci tutti i dati richiesti');
-        }
-    }
-
-    creaSlider(id, config) {
-        const container = document.createElement('div');
-        container.className = 'slider-container';
-        
-        const labelContainer = document.createElement('div');
-        labelContainer.className = 'd-flex justify-content-between align-items-center';
-        
-        const label = document.createElement('label');
-        label.textContent = this.getLabelText(id);
-        label.className = 'form-label';
-        
-        const valueDisplay = document.createElement('span');
-        valueDisplay.className = 'value-display';
-        
-        const slider = document.createElement('input');
-        slider.type = 'range';
-        slider.className = 'form-range';
-        slider.id = `${id}-slider`;
-        slider.min = config.min;
-        slider.max = config.max;
-        slider.step = config.step;
-        slider.value = config.default;
-        
-        const input = document.getElementById(id);
-        input.value = config.default;
-        valueDisplay.textContent = this.formattaValore(id, config.default);
-        
-        // Gestione eventi semplificata
-        const updateValue = (value) => {
-            const validValue = Math.min(Math.max(value, config.min), config.max);
-            slider.value = validValue;
-            input.value = validValue;
-            valueDisplay.textContent = this.formattaValore(id, validValue);
-            this.calcolaRisultatiLive();
-        };
-
-        // Eventi per input numerico
-        input.addEventListener('input', (e) => {
-            updateValue(e.target.value);
-        });
-
-        // Eventi per slider
-        slider.addEventListener('input', (e) => {
-            updateValue(e.target.value);
-        });
-
-        // Gestione touch specifica per mobile
-        if ('ontouchstart' in window) {
-            slider.addEventListener('touchstart', (e) => {
-                e.stopPropagation();
-            }, { passive: true });
-
-            slider.addEventListener('touchmove', (e) => {
-                e.stopPropagation();
-            }, { passive: true });
-        }
-        
-        labelContainer.appendChild(label);
-        labelContainer.appendChild(valueDisplay);
-        container.appendChild(labelContainer);
-        container.appendChild(slider);
-        input.parentNode.appendChild(container);
-    }
-
-    getLabelText(id) {
-        const labels = {
-            importo: 'Importo del finanziamento',
-            tasso: 'Tasso di interesse annuale',
-            durata: 'Durata del finanziamento',
-            extra: 'Pagamento extra annuale'
-        };
-        return labels[id] || id.charAt(0).toUpperCase() + id.slice(1);
-    }
-
-    formattaValore(tipo, valore) {
-        switch(tipo) {
-            case 'importo':
-            case 'reddito':
-                return this.formattaValuta(valore);
-            case 'tasso':
-                return `${valore}%`;
-            case 'durata':
-                return `${valore} anni`;
-            default:
-                return valore;
-        }
-    }
-
-    formattaValuta(valore) {
-        return new Intl.NumberFormat('it-IT', {
-            style: 'currency',
-            currency: 'EUR'
-        }).format(valore);
-    }
-
-    calcolaAmmortamento(importo, tassoAnnuale, anni, extraAnnuale) {
-        const rataMensile = this.calcolaRataMensile(importo, tassoAnnuale, anni);
-        const tassoMensile = tassoAnnuale / 12 / 100;
-        
-        let saldoStandard = importo;
-        let saldoConExtra = importo;
-        let interessiTotaliStandard = 0;
-        let interessiTotaliExtra = 0;
-        
-        const risultati = [];
-        
-        for (let anno = 1; anno <= anni && (saldoStandard > 0 || saldoConExtra > 0); anno++) {
-            // Calcolo standard
-            for (let mese = 1; mese <= 12 && saldoStandard > 0; mese++) {
-                const interessiMese = saldoStandard * tassoMensile;
-                interessiTotaliStandard += interessiMese;
-                const capitaleMese = Math.min(rataMensile - interessiMese, saldoStandard);
-                saldoStandard = Math.max(0, saldoStandard - capitaleMese);
-            }
-            
-            // Calcolo con extra
-            for (let mese = 1; mese <= 12 && saldoConExtra > 0; mese++) {
-                const interessiMese = saldoConExtra * tassoMensile;
-                interessiTotaliExtra += interessiMese;
-                const capitaleMese = Math.min(rataMensile - interessiMese, saldoConExtra);
-                saldoConExtra = Math.max(0, saldoConExtra - capitaleMese);
-                
-                // Applica il pagamento extra alla fine dell'anno
-                if (mese === 12 && saldoConExtra > 0) {
-                    saldoConExtra = Math.max(0, saldoConExtra - extraAnnuale);
-                }
-            }
-            
-            risultati.push({
-                anno,
-                rataMensile,
-                saldoStandard: Math.round(saldoStandard * 100) / 100,
-                saldoConExtra: Math.round(saldoConExtra * 100) / 100,
-                interessiTotaliStandard: Math.round(interessiTotaliStandard * 100) / 100,
-                interessiTotaliExtra: Math.round(interessiTotaliExtra * 100) / 100,
-                risparmioInteressi: Math.round((interessiTotaliStandard - interessiTotaliExtra) * 100) / 100
-            });
-        }
-        
-        return risultati;
-    }
-
-    mostraRisultati(risultati) {
-        // Trova l'ultimo anno con saldo extra > 0
-        const durataEffettiva = risultati.findIndex(r => r.saldoConExtra <= 0) + 1;
-        const durataStandard = risultati.length;
-        const anniRisparmiati = durataStandard - durataEffettiva;
-        
-        const sommario = document.getElementById('sommario');
-        sommario.innerHTML = `
-            <div class="col-md-3 col-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Rata Mensile</h5>
-                        <p class="card-text">${this.formattaValuta(risultati[0].rataMensile)}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Interessi Totali</h5>
-                        <p class="card-text">${this.formattaValuta(risultati[risultati.length - 1].interessiTotaliStandard)}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Risparmio Totale</h5>
-                        <p class="card-text">${this.formattaValuta(risultati[risultati.length - 1].risparmioInteressi)}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Durata Effettiva</h5>
-                        <p class="card-text">${durataEffettiva} anni (-${anniRisparmiati} anni)</p>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        this.aggiornaGrafico(risultati);
-        this.aggiornaTabella(risultati);
-    }
-
-    aggiornaGrafico(risultati) {
-        const ctx = document.getElementById('mutuoChart').getContext('2d');
-        
-        if (this.chart) {
-            this.chart.destroy();
-        }
-
-        this.chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: risultati.map(r => `Anno ${r.anno}`),
-                datasets: [{
-                    label: 'Piano Standard',
-                    data: risultati.map(r => r.saldoStandard),
-                    borderColor: '#2563eb',
-                    tension: 0.1
-                }, {
-                    label: 'Piano con Extra',
-                    data: risultati.map(r => r.saldoConExtra),
-                    borderColor: '#10b981',
-                    tension: 0.1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false
-            }
-        });
-    }
-
-    calcolaRataMensile(importo, tassoAnnuale, anni) {
-        const tassoMensile = tassoAnnuale / 12 / 100;
-        const numeroRate = anni * 12;
-        
-        if (tassoMensile === 0) {
-            return importo / numeroRate;
-        }
-        
-        return (importo * tassoMensile * Math.pow(1 + tassoMensile, numeroRate)) / 
-               (Math.pow(1 + tassoMensile, numeroRate) - 1);
-    }
-
-    calcolaTotaleInteressi(risultati) {
-        let totaleInteressi = 0;
-        for (const r of risultati) {
-            totaleInteressi += (r.saldoStandard - r.saldoConExtra);
-        }
-        return totaleInteressi;
-    }
-
-    inizializzaSliders() {
-        const configurazioni = {
-            importo: { min: 50000, max: 1000000, step: 1000, default: 200000 },
-            tasso: { min: 0.1, max: 10, step: 0.1, default: 3.5 },
-            durata: { min: 5, max: 30, step: 1, default: 20 },
-            extra: { min: 0, max: 10000, step: 100, default: 0 }
-        };
-
-        for (const [id, config] of Object.entries(configurazioni)) {
-            this.creaSlider(id, config);
-        }
+        console.log('Inizializzazione completata');
     }
 
     verificaElementiHTML() {
-        const elementiNecessari = [
+        const elementiRichiesti = [
             'mutuo-form',
             'importo',
             'tasso',
             'durata',
             'extra',
             'sommario',
-            'dettaglio-tabella',
-            'mutuoChart'
+            'mutuoChart',
+            'dettaglio-tabella'
         ];
-
-        for (const id of elementiNecessari) {
-            const elemento = document.getElementById(id);
-            if (!elemento) {
-                console.error(`Elemento mancante: ${id}`);
-                return false;
-            }
+        
+        const elementiMancanti = elementiRichiesti.filter(id => !document.getElementById(id));
+        if (elementiMancanti.length > 0) {
+            console.error('Elementi mancanti:', elementiMancanti);
+            return false;
         }
         return true;
-    }
-
-    inizializzaGestioneMobile() {
-        // Migliora lo scrolling su iOS
-        document.addEventListener('touchmove', (e) => {
-            if (!e.target.closest('.form-range')) {
-                e.stopPropagation();
-            }
-        }, { passive: true });
-
-        if ('ontouchstart' in window) {
-            document.querySelectorAll('.form-range').forEach(slider => {
-                slider.addEventListener('touchstart', (e) => {
-                    if (e.target.closest('.form-range')) {
-                        e.stopPropagation();
-                    }
-                }, { passive: true });
-
-                slider.addEventListener('touchmove', (e) => {
-                    if (e.target.closest('.form-range')) {
-                        e.stopPropagation();
-                    }
-                }, { passive: true });
-            });
-        }
-
-        // Aggiungi gestione scroll elastico per iOS
-        document.body.style.overscrollBehaviorY = 'none';
-        
-        // Previeni il bounce effect su iOS
-        document.addEventListener('touchmove', (e) => {
-            if (e.target.closest('.sidebar') || e.target.closest('.table-responsive')) {
-                e.stopPropagation();
-            }
-        }, { passive: true });
-    }
-
-    calculateSliderValue(slider, touch) {
-        const rect = slider.getBoundingClientRect();
-        const position = touch.clientX - rect.left;
-        const percentage = Math.max(0, Math.min(1, position / rect.width));
-        const range = slider.max - slider.min;
-        return Math.round((percentage * range + parseFloat(slider.min)) / slider.step) * slider.step;
     }
 
     inizializzaSelettoreTipoDebito() {
         const tipoDebito = document.getElementById('tipo-debito');
         const importoLabel = document.getElementById('importo-label');
         
-        // Configurazioni per tipo di debito
         const configurazioni = {
             mutuo: {
                 importoMin: 50000,
@@ -407,31 +57,12 @@ class CalcolatoreMutuo {
                 tassoMax: 15,
                 durataMax: 10,
                 label: 'Importo prestito (€)'
-            },
-            auto: {
-                importoMin: 5000,
-                importoMax: 150000,
-                importoDefault: 30000,
-                tassoMin: 1,
-                tassoMax: 12,
-                durataMax: 7,
-                label: 'Importo finanziamento (€)'
-            },
-            altro: {
-                importoMin: 1000,
-                importoMax: 500000,
-                importoDefault: 10000,
-                tassoMin: 0.1,
-                tassoMax: 20,
-                durataMax: 15,
-                label: 'Importo debito (€)'
             }
         };
 
         tipoDebito.addEventListener('change', (e) => {
             const config = configurazioni[e.target.value];
             
-            // Aggiorna i limiti degli input
             const importoInput = document.getElementById('importo');
             const durataInput = document.getElementById('durata');
             const tassoInput = document.getElementById('tasso');
@@ -444,29 +75,150 @@ class CalcolatoreMutuo {
             tassoInput.min = config.tassoMin;
             tassoInput.max = config.tassoMax;
             
-            // Aggiorna label
             importoLabel.textContent = config.label;
-            
-            // Aggiorna classe per stile
-            document.body.className = `tipo-${e.target.value}`;
-            
-            // Aggiorna gli slider
-            this.aggiornaSliders(config);
         });
 
         // Imposta configurazione iniziale
         tipoDebito.dispatchEvent(new Event('change'));
     }
 
-    aggiornaSliders(config) {
-        const configurazioni = {
-            importo: { 
-                min: config.importoMin, 
-                max: config.importoMax, 
-                step: Math.max(100, config.importoMax / 1000),
-                default: config.importoDefault 
+    inizializzaEventi() {
+        console.log('Inizializzazione eventi');
+        this.form.addEventListener('submit', (e) => {
+            console.log('Form sottomesso');
+            e.preventDefault();
+            this.calcolaMutuo();
+        });
+
+        // Aggiungi listener per il pulsante reset
+        this.form.addEventListener('reset', () => {
+            console.log('Form resettato');
+            if (this.chart) {
+                this.chart.destroy();
+            }
+            document.getElementById('sommario').innerHTML = '';
+            document.getElementById('dettaglio-tabella').innerHTML = '';
+        });
+    }
+
+    calcolaMutuo() {
+        console.log('Inizio calcolo mutuo');
+        const importo = parseFloat(document.getElementById('importo').value);
+        const tasso = parseFloat(document.getElementById('tasso').value) / 100;
+        const durata = parseInt(document.getElementById('durata').value);
+        const extra = parseFloat(document.getElementById('extra').value) || 0;
+
+        console.log('Valori input:', { importo, tasso, durata, extra });
+
+        // Calcolo rata mensile
+        const tassoMensile = tasso / 12;
+        const numRate = durata * 12;
+        const rata = (importo * tassoMensile * Math.pow(1 + tassoMensile, numRate)) / 
+                    (Math.pow(1 + tassoMensile, numRate) - 1);
+
+        console.log('Rata mensile calcolata:', rata);
+
+        // Calcola l'ammortamento
+        let saldoStandard = importo;
+        let saldoExtra = importo;
+        let risultati = [];
+
+        for (let anno = 1; anno <= durata; anno++) {
+            let interessiStandard = 0;
+            let interessiExtra = 0;
+
+            // Calcolo standard
+            for (let mese = 1; mese <= 12; mese++) {
+                interessiStandard += saldoStandard * tassoMensile;
+                saldoStandard -= (rata - (saldoStandard * tassoMensile));
+            }
+
+            // Calcolo con extra
+            for (let mese = 1; mese <= 12; mese++) {
+                interessiExtra += saldoExtra * tassoMensile;
+                saldoExtra -= (rata - (saldoExtra * tassoMensile));
+                if (mese === 12) saldoExtra = Math.max(0, saldoExtra - extra);
+            }
+
+            risultati.push({
+                anno,
+                saldoStandard: Math.max(0, saldoStandard),
+                saldoExtra: Math.max(0, saldoExtra),
+                risparmioInteressi: interessiStandard - interessiExtra
+            });
+        }
+
+        console.log('Risultati calcolati:', risultati);
+        this.mostraRisultati(risultati, rata);
+    }
+
+    mostraRisultati(risultati, rataMensile) {
+        console.log('Mostro risultati');
+        try {
+            // Aggiorna sommario
+            const sommario = document.getElementById('sommario');
+            sommario.innerHTML = `
+                <div class="col-6 col-md-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Rata Mensile</h5>
+                            <p class="card-text">€${rataMensile.toFixed(2)}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Aggiorna tabella
+            const tbody = document.getElementById('dettaglio-tabella');
+            tbody.innerHTML = risultati.map(r => `
+                <tr>
+                    <td>${r.anno}</td>
+                    <td>€${r.saldoStandard.toFixed(2)}</td>
+                    <td>€${r.saldoExtra.toFixed(2)}</td>
+                    <td>€${r.risparmioInteressi.toFixed(2)}</td>
+                </tr>
+            `).join('');
+
+            // Aggiorna grafico
+            this.aggiornaGrafico(risultati);
+            console.log('Risultati mostrati con successo');
+        } catch (error) {
+            console.error('Errore nel mostrare i risultati:', error);
+        }
+    }
+
+    aggiornaGrafico(risultati) {
+        if (this.chart) {
+            this.chart.destroy();
+        }
+
+        const ctx = document.getElementById('mutuoChart').getContext('2d');
+        this.chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: risultati.map(r => `Anno ${r.anno}`),
+                datasets: [{
+                    label: 'Saldo Standard',
+                    data: risultati.map(r => r.saldoStandard),
+                    borderColor: '#2563eb',
+                    tension: 0.1
+                }, {
+                    label: 'Saldo con Extra',
+                    data: risultati.map(r => r.saldoExtra),
+                    borderColor: '#16a34a',
+                    tension: 0.1
+                }]
             },
-            tasso: { 
-                min: config.tassoMin, 
-                max: config.tassoMax, 
-     
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    }
+}
+
+// Inizializza il calcolatore quando il DOM è pronto
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM caricato');
+    window.calcolatore = new CalcolatoreMutuo();
+});  
