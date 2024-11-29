@@ -1,0 +1,152 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');
+
+/* Stili per il wrapper dell'input */
+.number-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    border: 1px solid #E5E7EB;
+    border-radius: 0.375rem;
+    background-color: white;
+    overflow: visible;
+}
+
+/* Stili per il simbolo della valuta */
+.currency-symbol {
+    position: absolute;
+    left: 12px;
+    color: #6B7280;
+    font-size: 16px;
+    pointer-events: none;
+}
+
+/* Stili base per l'input numerico */
+.number-input-mobile {
+    border: none;
+    outline: none;
+    padding: 8px 12px 8px 32px;
+    width: 100%;
+    font-size: 16px;
+    text-align: right;
+    background: transparent;
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+/* Stili specifici per mobile */
+@media (max-width: 640px) {
+    .number-input-mobile {
+        font-size: 16px !important;
+        padding: 12px 8px 12px 32px !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        -webkit-text-size-adjust: 100%;
+        transform-origin: right center;
+        letter-spacing: -0.5px;
+    }
+
+    .number-input-wrapper {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        max-width: 100%;
+        overflow: visible;
+    }
+
+    /* Aumenta l'area cliccabile */
+    .number-input-mobile {
+        min-height: 48px;
+    }
+}
+
+/* Rimuovi gli spinners */
+.number-input-mobile::-webkit-outer-spin-button,
+.number-input-mobile::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+number-input-mobile {
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
+/* Focus styles */
+.number-input-mobile:focus {
+    outline: none;
+    background-color: #F9FAFB;
+}
+
+/* Assicurati che il contenuto sia sempre visibile */
+.number-input-mobile {
+    text-overflow: clip;
+    overflow: visible !important;
+    white-space: nowrap !important;
+}
+
+/* Previeni lo zoom su iOS */
+@supports (-webkit-touch-callout: none) {
+    .number-input-mobile {
+        font-size: 16px !important;
+    }
+}
+
+.input-container {
+    background: white;
+    border: 1px solid #E5E7EB;
+    border-radius: 0.375rem;
+    overflow: hidden;
+}
+
+.input-wrapper {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-bottom: 1px solid #E5E7EB;
+}
+
+.amount-input {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    text-align: right;
+    padding: 4px;
+    background: transparent;
+}
+
+.formatted-value {
+    padding: 4px 12px;
+    text-align: right;
+    font-size: 14px;
+    color: #6B7280;
+    background-color: #F9FAFB;
+}
+
+/* Stili specifici per mobile */
+@media (max-width: 640px) {
+    .input-wrapper {
+        padding: 12px;
+    }
+
+    .amount-input {
+        font-size: 18px;
+        padding: 8px 4px;
+    }
+
+    .formatted-value {
+        padding: 8px 12px;
+        font-size: 16px;
+    }
+}
+
+/* Rimuovi gli spinners */
+.amount-input::-webkit-outer-spin-button,
+.amount-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+amount-input {
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
