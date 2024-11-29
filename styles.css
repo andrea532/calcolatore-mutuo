@@ -1,0 +1,75 @@
+/* Stile per gli slider */
+input[type="range"] {
+    height: 4px;
+    background: #e5e7eb;
+    border-radius: 8px;
+    outline: none;
+}
+
+/* Stile per il thumb (il pallino dello slider) */
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    background: #3b82f6;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background .3s ease-in-out;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+    background: #2563eb;
+}
+
+/* Firefox */
+input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    background: #3b82f6;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background .3s ease-in-out;
+}
+
+input[type="range"]::-moz-range-thumb:hover {
+    background: #2563eb;
+}
+
+/* Stile per il contenitore del grafico */
+.chart-container {
+    position: relative;
+    width: 100%;
+    height: 60vh; /* Altezza responsive basata sull'altezza della viewport */
+    min-height: 300px; /* Altezza minima per schermi molto piccoli */
+    max-height: 600px; /* Altezza massima per schermi molto grandi */
+    margin: 0 auto; /* Centra il contenitore */
+}
+
+/* Assicura che il canvas si adatti al contenitore */
+#comparisonChart {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Media queries per schermi diversi */
+@media (max-width: 640px) { /* Mobile */
+    .chart-container {
+        height: 50vh;
+        min-height: 250px;
+    }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) { /* Tablet */
+    .chart-container {
+        height: 55vh;
+        min-height: 275px;
+    }
+}
+
+@media (min-width: 1025px) { /* Desktop */
+    .chart-container {
+        height: 60vh;
+        min-height: 300px;
+    }
+} 
